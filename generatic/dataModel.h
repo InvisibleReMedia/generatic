@@ -1,10 +1,14 @@
-//
-//  dataModel.h
-//  generatic
-//
-//  Created by Olivier on 16/08/2018.
-//  Copyright © 2018 Olivier. All rights reserved.
-//
+/**
+ **
+ **   Langage C
+ **   Projet Generatic
+ **   17/7/18 CET 10:00
+ **   business.forward.technology@gmail.com
+ **   Ce source peut être compilé avec:
+ **     - XCode (MacOS)
+ **     - Code::Blocks et GNU GCC
+ **
+ **/
 
 #ifndef dataModel_h
 #define dataModel_h
@@ -111,7 +115,7 @@ typedef struct {
     myValueKeyList config;          /** configurations **/
     mySessionList  sessions;        /** sessions */
     
-} myProject;
+} myModel;
 
 
 extern myValueKeyList createValueKeyList(unsigned int);
@@ -121,8 +125,10 @@ extern mySessionList createSessionList(unsigned int);
 extern void freeValueKey(myValueKey*);
 extern void freeCommand(myCommand*);
 extern void freeSession(mySession*);
+extern void freeModel(myModel*);
 extern void freeValueKeyList(myValueKeyList*);
 extern void freeCommandList(myCommandList*);
+extern void freeSessionList(mySessionList*);
 extern myValueKeyList* removeAtValueKeyList(myValueKeyList*, unsigned int);
 extern myCommandList* removeAtCommandList(myCommandList*, unsigned int);
 extern myTabList* removeAtTabList(myTabList*, unsigned int);
@@ -130,7 +136,11 @@ extern mySessionList* removeAtSessionList(mySessionList*, unsigned int);
 extern myValueKey createValueKey(void);
 extern myCommand createCommand(void);
 extern mySession createSession(void);
-
+extern myModel createModel(void);
+extern myValueKeyList* writeValueKey(myValueKeyList*, myValueKey*);
+extern myCommandList* writeCommand(myCommandList*, myCommand*);
+extern myTabList* writeTab(myTabList*, unsigned int);
+extern mySessionList* writeSession(mySessionList*, mySession*);
 
 
 #endif /* dataModel_h */

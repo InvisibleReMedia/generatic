@@ -1,10 +1,15 @@
-//
-//  library-strings.h
-//  generatic
-//
-//  Created by Olivier on 15/08/2018.
-//  Copyright © 2018 Olivier. All rights reserved.
-//
+/**
+ **
+ **   Langage C
+ **   Projet Generatic
+ **   17/7/18 CET 10:00
+ **   business.forward.technology@gmail.com
+ **   Ce source peut être compilé avec:
+ **     - XCode (MacOS)
+ **     - Code::Blocks et GNU GCC
+ **
+ **/
+
 
 #ifndef library_strings_h
 #define library_strings_h
@@ -49,12 +54,12 @@ typedef struct {
 extern wchar_t nonDosFormat(FILE*);
 extern myList createList(unsigned int);
 extern myKey createKey(void);
-extern myString createData(unsigned int);
-extern void freeData(myString*);
+extern myString createString(unsigned int);
+extern void freeString(myString*);
 extern void freeKey(myKey*);
 extern void freeList(myList*);
 extern int compareData(myString, myString);
-extern myString* writeData(myString*, wchar_t*);
+extern myString* writeString(myString*, wchar_t*);
 extern myList* writeList(myList*, wchar_t*, wchar_t*, wchar_t*);
 extern wchar_t* search(myList*, wchar_t*);
 extern void eraseFile(char*);

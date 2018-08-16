@@ -10,6 +10,8 @@
 		094667E821253811002CE844 /* dataModel.c in Sources */ = {isa = PBXBuildFile; fileRef = 094667E621253811002CE844 /* dataModel.c */; };
 		09506EC62124816700A9741A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506EC52124816700A9741A /* main.c */; };
 		09506ECE212481F500A9741A /* library-strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506ECC212481F500A9741A /* library-strings.c */; };
+		0988E688212561B100D58B2E /* installing.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E686212561B100D58B2E /* installing.c */; };
+		0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E689212570EC00D58B2E /* parse-cmd.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +33,10 @@
 		09506EC52124816700A9741A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		09506ECC212481F500A9741A /* library-strings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "library-strings.c"; sourceTree = "<group>"; };
 		09506ECD212481F500A9741A /* library-strings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "library-strings.h"; sourceTree = "<group>"; };
+		0988E686212561B100D58B2E /* installing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = installing.c; sourceTree = "<group>"; };
+		0988E687212561B100D58B2E /* installing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = installing.h; sourceTree = "<group>"; };
+		0988E689212570EC00D58B2E /* parse-cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "parse-cmd.c"; sourceTree = "<group>"; };
+		0988E68A212570EC00D58B2E /* parse-cmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "parse-cmd.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,10 +70,14 @@
 			isa = PBXGroup;
 			children = (
 				09506EC52124816700A9741A /* main.c */,
+				0988E686212561B100D58B2E /* installing.c */,
+				0988E687212561B100D58B2E /* installing.h */,
 				09506ECC212481F500A9741A /* library-strings.c */,
 				09506ECD212481F500A9741A /* library-strings.h */,
 				094667E621253811002CE844 /* dataModel.c */,
 				094667E721253811002CE844 /* dataModel.h */,
+				0988E689212570EC00D58B2E /* parse-cmd.c */,
+				0988E68A212570EC00D58B2E /* parse-cmd.h */,
 			);
 			path = generatic;
 			sourceTree = "<group>";
@@ -130,6 +140,8 @@
 			files = (
 				094667E821253811002CE844 /* dataModel.c in Sources */,
 				09506ECE212481F500A9741A /* library-strings.c in Sources */,
+				0988E688212561B100D58B2E /* installing.c in Sources */,
+				0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */,
 				09506EC62124816700A9741A /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

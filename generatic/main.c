@@ -1,10 +1,14 @@
-//
-//  main.c
-//  generatic
-//
-//  Created by Olivier on 15/08/2018.
-//  Copyright © 2018 Olivier. All rights reserved.
-//
+/**
+ **
+ **   Langage C
+ **   Projet Generatic
+ **   17/7/18 CET 10:00
+ **   business.forward.technology@gmail.com
+ **   Ce source peut être compilé avec:
+ **     - XCode (MacOS)
+ **     - Code::Blocks et GNU GCC
+ **
+ **/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +18,13 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
+#include "installing.h"
+#include "parse-cmd.h"
+
+
+/** Elements globaux (constants) **/
+myCommandList builtInCommands;
+myModel model;
 
 
 /**
@@ -24,7 +35,7 @@ void entry() {
     myString line;
     wchar_t input[2];
     
-    line = createData(MINSIZE);
+    line = createString(MINSIZE);
     
     input[1] = '\0';
     bool finished = false;
@@ -37,13 +48,16 @@ void entry() {
         input[0] = '\0';
         do {
             
-            writeData(&line, input);
+            writeString(&line, input);
             input[0] = nonDosFormat(stdin);
             // parsing automatique
 
             if (input[0] == '\n') {
-                writeData(&line, input);
-                wprintf(line.strContent);
+                writeString(&line, input);
+                
+                myCommand o = createCommand();
+                parseCommand(line, &o);
+                
                 if (wcsncmp(line.strContent, L"quit\n", 5) == 0) {
                     finished = true;
                 }
@@ -55,18 +69,25 @@ void entry() {
         
     } while (!finished);
     
-    freeData(&line);
+    freeString(&line);
     
 }
 
 
+
+
 int main(int argc, const char * argv[]) {
 
+    builtInCommands = install();
+    model = initialize();
     printf("generatic copyright @ 2018\n");
     printf("Automatic programming hobbie\n");
     printf("See help\n");
     
     entry();
+    
+    freeCommandList(&builtInCommands);
+    freeModel(&model);
     
     return 0;
 }

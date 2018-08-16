@@ -19,10 +19,6 @@
 #include "library-strings.h"
 
 
-#define MINSIZE     255
-#define STOP_READ   "--"
-#define TAG_ID      "//--"
-
 /**
  **   Hack to do not read
  **   \r
@@ -66,7 +62,7 @@ myList createList(unsigned int capacity) {
  **   Crée une zone de mémoire limitée
  **   capacity : capacité maximum
  **/
-myString createData(unsigned int capacity) {
+myString createString(unsigned int capacity) {
     
     
     myString m;
@@ -81,7 +77,7 @@ myString createData(unsigned int capacity) {
         
     } else {
         
-        perror("Erreur dans createData : ");
+        perror("Erreur dans createString : ");
         exit(EXIT_FAILURE);
     }
     
@@ -91,7 +87,7 @@ myString createData(unsigned int capacity) {
  **   Libère la mémoire
  **   myString : données
  **/
-void freeData(myString* d) {
+void freeString(myString* d) {
     
     free(d->strContent);
     d->used = 0;
@@ -134,9 +130,9 @@ myKey createKey() {
  **/
 void freeKey(myKey* k) {
     
-    freeData(&k->name);
-    freeData(&k->value);
-    freeData(&k->question);
+    freeString(&k->name);
+    freeString(&k->value);
+    freeString(&k->question);
 }
 
 /**
@@ -235,7 +231,7 @@ myString* reallocData(myString* m, unsigned int newCapacity) {
  **   myString : zone de mémoire
  **   strContent : contenu à ajouter
  **/
-myString* writeData(myString* m, wchar_t* strContent) {
+myString* writeString(myString* m, wchar_t* strContent) {
     
     unsigned int l = (unsigned int)wcslen(strContent);
     
@@ -291,8 +287,8 @@ myString* writeData(myString* m, wchar_t* strContent) {
 myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
     
     myKey* current = m->list;
-    myString d = createData((unsigned int)wcslen(strName));
-    writeData(&d, strName);
+    myString d = createString((unsigned int)wcslen(strName));
+    writeString(&d, strName);
     
     bool found = false;
     int index;
@@ -300,7 +296,7 @@ myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
         
         if (compareData(current->name, d) == 0) {
             
-            writeData(&current->value, value);
+            writeString(&current->value, value);
             found = true;
             
         }
@@ -310,9 +306,9 @@ myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
     if(!found) {
         
         myKey k = createKey();
-        writeData(&k.question, text);
-        writeData(&k.name, strName);
-        writeData(&k.value, value);
+        writeString(&k.question, text);
+        writeString(&k.name, strName);
+        writeString(&k.value, value);
         
         if (m->used == 0) {
             
@@ -337,7 +333,7 @@ myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
         
     }
     
-    freeData(&d);
+    freeString(&d);
     
     return m;
     
@@ -352,8 +348,8 @@ myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
 wchar_t* search(myList* m, wchar_t* strName) {
     
     myKey* current = m->list;
-    myString d = createData((unsigned int)wcslen(strName));
-    writeData(&d, strName);
+    myString d = createString((unsigned int)wcslen(strName));
+    writeString(&d, strName);
     
     bool found = false;
     int index;
@@ -368,7 +364,7 @@ wchar_t* search(myList* m, wchar_t* strName) {
         
     }
     
-    freeData(&d);
+    freeString(&d);
     
     if (found) {
         
@@ -380,6 +376,8 @@ wchar_t* search(myList* m, wchar_t* strName) {
     
     
 }
+
+
 
 /**
  **   Efface un fichier
@@ -401,7 +399,7 @@ void writeFile(char *destfName, writeLine f) {
     myString line;
     FILE* writeFile = NULL;
     
-    line = createData(MINSIZE);
+    line = createString(MINSIZE);
     
     eraseFile(destfName);
     
@@ -424,7 +422,7 @@ void writeFile(char *destfName, writeLine f) {
             perror("Fichier en erreur :");
         }
         
-    freeData(&line);
+    freeString(&line);
     
 }
 
