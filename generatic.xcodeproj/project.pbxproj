@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		094667E821253811002CE844 /* dataModel.c in Sources */ = {isa = PBXBuildFile; fileRef = 094667E621253811002CE844 /* dataModel.c */; };
 		09506EC62124816700A9741A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506EC52124816700A9741A /* main.c */; };
+		09506ECE212481F500A9741A /* library-strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506ECC212481F500A9741A /* library-strings.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +25,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		094667E621253811002CE844 /* dataModel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dataModel.c; sourceTree = "<group>"; };
+		094667E721253811002CE844 /* dataModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dataModel.h; sourceTree = "<group>"; };
 		09506EC22124816700A9741A /* generatic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generatic; sourceTree = BUILT_PRODUCTS_DIR; };
 		09506EC52124816700A9741A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		09506ECC212481F500A9741A /* library-strings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "library-strings.c"; sourceTree = "<group>"; };
+		09506ECD212481F500A9741A /* library-strings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "library-strings.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				09506EC52124816700A9741A /* main.c */,
+				09506ECC212481F500A9741A /* library-strings.c */,
+				09506ECD212481F500A9741A /* library-strings.h */,
+				094667E621253811002CE844 /* dataModel.c */,
+				094667E721253811002CE844 /* dataModel.h */,
 			);
 			path = generatic;
 			sourceTree = "<group>";
@@ -118,6 +128,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				094667E821253811002CE844 /* dataModel.c in Sources */,
+				09506ECE212481F500A9741A /* library-strings.c in Sources */,
 				09506EC62124816700A9741A /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
