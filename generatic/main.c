@@ -20,6 +20,7 @@
 #include "dataModel.h"
 #include "installing.h"
 #include "parse-cmd.h"
+#include "cmd.h"
 
 
 /** Elements globaux (constants) **/
@@ -45,6 +46,8 @@ void entry() {
         printf(">>> ");
         memset(line.strContent, 0, line.used);
         line.used = 0;
+        /** vide le flux **/
+        fflush(stdin);
         input[0] = '\0';
         do {
             
@@ -56,7 +59,15 @@ void entry() {
                 writeString(&line, input);
                 
                 myCommand o = createCommand();
-                parseCommand(line, &o);
+                if (parseCommand(line, &o)) {
+                    
+                    if (searchCommand(&o, &builtInCommands)) {
+                        
+                        wprintf(L"    OK\n");
+
+                    }
+                }
+                
                 
                 if (wcsncmp(line.strContent, L"quit\n", 5) == 0) {
                     finished = true;

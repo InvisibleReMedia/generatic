@@ -135,6 +135,7 @@ void freeCommand(myCommand* d) {
     
     freeString(&d->name);
     freeString(&d->option);
+    freeString(&d->value);
     freeCommandList(&d->parameters);
 }
 
@@ -469,6 +470,7 @@ myCommand createCommand() {
     myCommand k;
     k.name = createString(MINSIZE);
     k.option = createString(MINSIZE);
+    k.value = createString(MINSIZE);
     k.parameters = createCommandList(0);
     
     return k;

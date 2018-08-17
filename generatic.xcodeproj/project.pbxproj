@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0928003A2126B7CD003A3B0E /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 092800382126B7CD003A3B0E /* cmd.c */; };
 		094667E821253811002CE844 /* dataModel.c in Sources */ = {isa = PBXBuildFile; fileRef = 094667E621253811002CE844 /* dataModel.c */; };
 		09506EC62124816700A9741A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506EC52124816700A9741A /* main.c */; };
 		09506ECE212481F500A9741A /* library-strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506ECC212481F500A9741A /* library-strings.c */; };
@@ -27,6 +28,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		092800382126B7CD003A3B0E /* cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cmd.c; sourceTree = "<group>"; };
+		092800392126B7CD003A3B0E /* cmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cmd.h; sourceTree = "<group>"; };
 		094667E621253811002CE844 /* dataModel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dataModel.c; sourceTree = "<group>"; };
 		094667E721253811002CE844 /* dataModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dataModel.h; sourceTree = "<group>"; };
 		09506EC22124816700A9741A /* generatic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generatic; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +81,8 @@
 				094667E721253811002CE844 /* dataModel.h */,
 				0988E689212570EC00D58B2E /* parse-cmd.c */,
 				0988E68A212570EC00D58B2E /* parse-cmd.h */,
+				092800382126B7CD003A3B0E /* cmd.c */,
+				092800392126B7CD003A3B0E /* cmd.h */,
 			);
 			path = generatic;
 			sourceTree = "<group>";
@@ -138,6 +143,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0928003A2126B7CD003A3B0E /* cmd.c in Sources */,
 				094667E821253811002CE844 /* dataModel.c in Sources */,
 				09506ECE212481F500A9741A /* library-strings.c in Sources */,
 				0988E688212561B100D58B2E /* installing.c in Sources */,

@@ -58,6 +58,7 @@ typedef struct {
     
     myString name;               /** command name **/
     myString option;             /** command option **/
+    myString value;              /** command value **/
     myCommandList parameters;    /** parameters **/
 
 } myCommand;

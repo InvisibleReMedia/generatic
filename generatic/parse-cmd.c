@@ -41,6 +41,49 @@ bool nonDosFormatString(myString s, wchar_t* c, int* index) {
     
 }
 
+/**
+ **  Write string and empty src, udpate state and afterSpace
+ **
+ **/
+void writeName(myString* name, myString* src, int* state, bool* afterSpace) {
+    
+    writeString(name, src->strContent);
+    memset(src->strContent, 0, src->used);
+    src->used = 0;
+    *state = 1;
+    *afterSpace = true;
+    
+}
+
+/**
+ **  Write option and empty src, udpate state and afterSpace
+ **
+ **/
+void writeOption(myString* option, myString* src, int* state, bool* afterSpace) {
+    
+    writeString(option, src->strContent);
+    memset(src->strContent, 0, src->used);
+    src->used = 0;
+    *state = 2;
+    *afterSpace = true;
+    
+}
+
+/**
+ **  Write parameter into command and empty src, udpate state and afterSpace
+ **
+ **/
+void writeParameter(myCommand* result, myString* src, int* state, bool* afterSpace) {
+    
+    myCommand cmd = createCommand();
+    writeString(&cmd.value, src->strContent);
+    writeCommand(&result->parameters, &cmd);
+    memset(src->strContent, 0, src->used);
+    src->used = 0;
+    *afterSpace = true;
+
+}
+
 
 /**
  **  Parse a command
@@ -57,34 +100,21 @@ bool parseCommand(myString s, myCommand* result) {
 
     while(nonDosFormatString(s, &c, &pos)) {
         
-        if (c == L' ' || c == L'\t' || c == L',') {
+        if (c == L'\n' || ((c == L' ' || c == L'\t') && state >= 0) || (c == L',' && state > 1)) {
             
             if (!afterSpace) {
                 
                 if (state == 0) {
                     
-                    writeString(&result->name, value.strContent);
-                    memset(value.strContent, 0, value.used);
-                    value.used = 0;
-                    state = 1;
-                    afterSpace = true;
+                    writeName(&result->name, &value, &state, &afterSpace);
 
                 } else if (state == 1) {
                     
-                    writeString(&result->option, value.strContent);
-                    memset(value.strContent, 0, value.used);
-                    value.used = 0;
-                    state = 2;
-                    afterSpace = true;
+                    writeOption(&result->option, &value, &state, &afterSpace);
 
                 } else {
-                    
-                    myCommand cmd = createCommand();
-                    writeString(&cmd.name, value.strContent);
-                    writeCommand(&result->parameters, &cmd);
-                    memset(value.strContent, 0, value.used);
-                    value.used = 0;
-                    afterSpace = true;
+
+                    writeParameter(result, &value, &state, &afterSpace);
 
                 }
 
@@ -104,28 +134,15 @@ bool parseCommand(myString s, myCommand* result) {
         
         if (state == 0) {
             
-            writeString(&result->name, value.strContent);
-            memset(value.strContent, 0, value.used);
-            value.used = 0;
-            state = 1;
-            afterSpace = true;
+            writeName(&result->name, &value, &state, &afterSpace);
             
         } else if (state == 1) {
             
-            writeString(&result->option, value.strContent);
-            memset(value.strContent, 0, value.used);
-            value.used = 0;
-            state = 2;
-            afterSpace = true;
+            writeOption(&result->option, &value, &state, &afterSpace);
             
         } else {
             
-            myCommand cmd = createCommand();
-            writeString(&cmd.name, value.strContent);
-            writeCommand(&result->parameters, &cmd);
-            memset(value.strContent, 0, value.used);
-            value.used = 0;
-            afterSpace = true;
+            writeParameter(result, &value, &state, &afterSpace);
             
         }
 
@@ -133,22 +150,5 @@ bool parseCommand(myString s, myCommand* result) {
     
     freeString(&value);
     
-    if (state > 0) {
-        
-        fwprintf(stdout, L"%ls %ls ", result->name.strContent, result->option.strContent);
-        for(int index = 0; index < result->parameters.used; ++index) {
-            
-            myCommand* c = (myCommand*)result->parameters.element;
-            fwprintf(stdout, L"%ls ", c[index].name.strContent);
-            
-        }
-        fflush(stdout);
-        return true;
-
-    } else {
-        
-        return false;
-        
-    }
-    
+    return state > 0;
 }

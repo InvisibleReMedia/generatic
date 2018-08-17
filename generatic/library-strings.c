@@ -161,7 +161,7 @@ void freeList(myList* l) {
  **   current : zone où chercher
  **   search : texte de recherche
  **/
-int compareData(myString current, myString search) {
+int compareString(myString current, myString search) {
     
     int t = wcscmp(current.strContent, search.strContent);
     if (t == 0) {
@@ -294,7 +294,7 @@ myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
     int index;
     for(index = 0; index < m->used && !found; ++index,++current) {
         
-        if (compareData(current->name, d) == 0) {
+        if (compareString(current->name, d) == 0) {
             
             writeString(&current->value, value);
             found = true;
@@ -355,7 +355,7 @@ wchar_t* search(myList* m, wchar_t* strName) {
     int index;
     for(index = 0; index < m->used && !found; ++index,++current) {
         
-        if (compareData(current->name, d) == 0) {
+        if (compareString(current->name, d) == 0) {
             
             found = true;
             break;
