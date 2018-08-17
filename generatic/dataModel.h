@@ -52,14 +52,19 @@ typedef struct {
 } myCommandList;
 
 /**
+ **  a pointer to a model structure
+ **/
+typedef void* myPtrModel;
+/**
  **  Command
  **/
 typedef struct {
     
-    myString name;               /** command name **/
-    myString option;             /** command option **/
-    myString value;              /** command value **/
-    myCommandList parameters;    /** parameters **/
+    myString name;                  /** command name **/
+    myString option;                /** command option **/
+    myString value;                 /** command value **/
+    myCommandList parameters;       /** parameters **/
+    bool (*execCommand)(myPtrModel, myPtrCommand);  /** function call to exec **/
 
 } myCommand;
 
@@ -115,6 +120,7 @@ typedef struct {
     
     myValueKeyList config;          /** configurations **/
     mySessionList  sessions;        /** sessions */
+    mySession* currentSession;      /** current session */
     
 } myModel;
 

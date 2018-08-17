@@ -13,15 +13,18 @@
 		09506ECE212481F500A9741A /* library-strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506ECC212481F500A9741A /* library-strings.c */; };
 		0988E688212561B100D58B2E /* installing.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E686212561B100D58B2E /* installing.c */; };
 		0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E689212570EC00D58B2E /* parse-cmd.c */; };
+		09F581312126EE25001A788F /* fileSystem.c in Sources */ = {isa = PBXBuildFile; fileRef = 09F5812F2126EE25001A788F /* fileSystem.c */; };
+		09F5814E21277707001A788F /* createDirectory.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09F58134212773A0001A788F /* createDirectory.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		09506EC02124816700A9741A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
+				09F5814E21277707001A788F /* createDirectory.sh in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -40,6 +43,9 @@
 		0988E687212561B100D58B2E /* installing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = installing.h; sourceTree = "<group>"; };
 		0988E689212570EC00D58B2E /* parse-cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "parse-cmd.c"; sourceTree = "<group>"; };
 		0988E68A212570EC00D58B2E /* parse-cmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "parse-cmd.h"; sourceTree = "<group>"; };
+		09F5812F2126EE25001A788F /* fileSystem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fileSystem.c; sourceTree = "<group>"; };
+		09F581302126EE25001A788F /* fileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileSystem.h; sourceTree = "<group>"; };
+		09F58134212773A0001A788F /* createDirectory.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = createDirectory.sh; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +62,7 @@
 		09506EB92124816700A9741A = {
 			isa = PBXGroup;
 			children = (
+				09F58134212773A0001A788F /* createDirectory.sh */,
 				09506EC42124816700A9741A /* generatic */,
 				09506EC32124816700A9741A /* Products */,
 			);
@@ -83,6 +90,8 @@
 				0988E68A212570EC00D58B2E /* parse-cmd.h */,
 				092800382126B7CD003A3B0E /* cmd.c */,
 				092800392126B7CD003A3B0E /* cmd.h */,
+				09F5812F2126EE25001A788F /* fileSystem.c */,
+				09F581302126EE25001A788F /* fileSystem.h */,
 			);
 			path = generatic;
 			sourceTree = "<group>";
@@ -147,6 +156,7 @@
 				094667E821253811002CE844 /* dataModel.c in Sources */,
 				09506ECE212481F500A9741A /* library-strings.c in Sources */,
 				0988E688212561B100D58B2E /* installing.c in Sources */,
+				09F581312126EE25001A788F /* fileSystem.c in Sources */,
 				0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */,
 				09506EC62124816700A9741A /* main.c in Sources */,
 			);

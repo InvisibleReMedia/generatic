@@ -19,6 +19,39 @@
 #include "library-strings.h"
 #include "dataModel.h"
 #include "installing.h"
+#include "fileSystem.h"
+
+bool quit(myPtrModel model, myPtrCommand cmd) {
+    
+    exit(EXIT_SUCCESS);
+    
+}
+
+bool newProject(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+    
+    if (ptrCmd->parameters.used == 2) {
+
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        
+        writeString(&ptrModel->currentSession->currentProject.path, path.strContent);
+        writeString(&ptrModel->currentSession->currentProject.name, file.strContent);
+        
+        /** create a directory **/
+        createOneDirectory(path.strContent);
+
+        return true;
+    }
+    
+    wprintf(L"new project,[path],[file] : manque path et/ou file\n");
+    return false;
+}
 
 myCommandList install() {
     
@@ -45,6 +78,8 @@ myCommandList install() {
     cp = createCommand();
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
+    
+    c.execCommand = newProject;
     
     writeCommand(&cmd, &c);
     
@@ -330,6 +365,7 @@ myCommandList install() {
     // QUIT
     c = createCommand();
     writeString(&c.name, L"quit");
+    c.execCommand = quit;
     
     writeCommand(&cmd, &c);
     

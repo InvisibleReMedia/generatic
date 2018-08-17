@@ -64,6 +64,8 @@ void entry() {
                     if (searchCommand(&o, &builtInCommands)) {
                         
                         wprintf(L"    OK\n");
+                        
+                        (*o.execCommand)(&model, &o);
 
                     }
                 }

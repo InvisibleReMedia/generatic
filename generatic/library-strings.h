@@ -58,7 +58,7 @@ extern myString createString(unsigned int);
 extern void freeString(myString*);
 extern void freeKey(myKey*);
 extern void freeList(myList*);
-extern int compareData(myString, myString);
+extern int compareString(myString, myString);
 extern myString* writeString(myString*, wchar_t*);
 extern myList* writeList(myList*, wchar_t*, wchar_t*, wchar_t*);
 extern wchar_t* search(myList*, wchar_t*);

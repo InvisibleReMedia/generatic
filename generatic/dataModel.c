@@ -507,6 +507,7 @@ myModel createModel() {
     k.sessions = createSessionList(1);
     mySession s = createSession();
     writeSession(&k.sessions, &s);
+    k.currentSession = &(k.sessions.sx[0]);
     
     
     return k;

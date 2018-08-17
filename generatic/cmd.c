@@ -74,6 +74,8 @@ bool searchCommand(myCommand* src, myCommandList* builtin) {
                 }
             }
             
+            src->execCommand = d->execCommand;
+            
             return true;
             
         }
