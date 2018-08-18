@@ -8,5 +8,10 @@
 #
 
 cd $1
-mkdir $2
+if [ -e $2 ]
+then
+    exit 0
+else
+    exit 2
+fi
 

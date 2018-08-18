@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0919B32D212791F9000298A5 /* testDir.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B32C212791A6000298A5 /* testDir.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		0919B32F21279674000298A5 /* testFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B32E2127964C000298A5 /* testFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		0919B33121279B5F000298A5 /* createFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B33021279B15000298A5 /* createFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		0928003A2126B7CD003A3B0E /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 092800382126B7CD003A3B0E /* cmd.c */; };
 		094667E821253811002CE844 /* dataModel.c in Sources */ = {isa = PBXBuildFile; fileRef = 094667E621253811002CE844 /* dataModel.c */; };
 		09506EC62124816700A9741A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506EC52124816700A9741A /* main.c */; };
@@ -20,17 +23,23 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		09506EC02124816700A9741A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				0919B33121279B5F000298A5 /* createFile.sh in CopyFiles */,
+				0919B32F21279674000298A5 /* testFile.sh in CopyFiles */,
+				0919B32D212791F9000298A5 /* testDir.sh in CopyFiles */,
 				09F5814E21277707001A788F /* createDirectory.sh in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0919B32C212791A6000298A5 /* testDir.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testDir.sh; sourceTree = "<group>"; };
+		0919B32E2127964C000298A5 /* testFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testFile.sh; sourceTree = "<group>"; };
+		0919B33021279B15000298A5 /* createFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = createFile.sh; sourceTree = "<group>"; };
 		092800382126B7CD003A3B0E /* cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cmd.c; sourceTree = "<group>"; };
 		092800392126B7CD003A3B0E /* cmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cmd.h; sourceTree = "<group>"; };
 		094667E621253811002CE844 /* dataModel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dataModel.c; sourceTree = "<group>"; };
@@ -62,6 +71,9 @@
 		09506EB92124816700A9741A = {
 			isa = PBXGroup;
 			children = (
+				0919B33021279B15000298A5 /* createFile.sh */,
+				0919B32C212791A6000298A5 /* testDir.sh */,
+				0919B32E2127964C000298A5 /* testFile.sh */,
 				09F58134212773A0001A788F /* createDirectory.sh */,
 				09506EC42124816700A9741A /* generatic */,
 				09506EC32124816700A9741A /* Products */,

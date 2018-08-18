@@ -7,6 +7,10 @@
 #
 #
 
-cd $1
-mkdir $2
+if [ -d $1 ]
+then
+    exit 0
+else
+    exit 2
+fi
 

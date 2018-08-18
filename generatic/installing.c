@@ -43,8 +43,8 @@ bool newProject(myPtrModel model, myPtrCommand cmd) {
         writeString(&ptrModel->currentSession->currentProject.path, path.strContent);
         writeString(&ptrModel->currentSession->currentProject.name, file.strContent);
         
-        /** create a directory **/
-        createOneDirectory(path.strContent);
+        /** create directory and file if not exist **/
+        createFile(path.strContent, file.strContent);
 
         return true;
     }

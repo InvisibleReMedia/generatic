@@ -8,5 +8,4 @@
 #
 
 cd $1
-mkdir $2
-
+touch $2
