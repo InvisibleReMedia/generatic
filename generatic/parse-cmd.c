@@ -27,8 +27,7 @@
 void writeName(myString* name, myString* src, int* state, bool* afterSpace) {
     
     writeString(name, src->strContent);
-    memset(src->strContent, 0, src->used);
-    src->used = 0;
+    clearString(name);
     *state = 1;
     *afterSpace = true;
     
@@ -41,8 +40,7 @@ void writeName(myString* name, myString* src, int* state, bool* afterSpace) {
 void writeOption(myString* option, myString* src, int* state, bool* afterSpace) {
     
     writeString(option, src->strContent);
-    memset(src->strContent, 0, src->used);
-    src->used = 0;
+    clearString(option);
     *state = 2;
     *afterSpace = true;
     
@@ -57,8 +55,7 @@ void writeParameter(myCommand* result, myString* src, int* state, bool* afterSpa
     myCommand cmd = createCommand();
     writeString(&cmd.value, src->strContent);
     writeCommand(&result->parameters, &cmd);
-    memset(src->strContent, 0, src->used);
-    src->used = 0;
+    clearString(src);
     *afterSpace = true;
 
 }

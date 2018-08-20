@@ -11,11 +11,19 @@
 
 typedef struct {
     
-    myList* attributes;
+    myList* lines;
     unsigned int used;
     unsigned int capacity;
+    myList newLine;
+    myList columns;
+    myString currentAttribut;
+    unsigned int index;
     
 } myCSV;
+
+extern myCSV createCSV(unsigned int);
+extern void freeCSV(myCSV*);
+extern void csvLoader(char *);
 
 
 #endif /* csv_reader_h */

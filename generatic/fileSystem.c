@@ -280,8 +280,7 @@ void createAllDirectory(wchar_t* dir) {
                     if (path.used > 0)
                         writeString(&path, L"/");
                     writeString(&path, s.strContent);
-                    memset(s.strContent, 0, s.used);
-                    s.used = 0;
+                    clearString(&s);
                 }
                 
             } else {
@@ -546,11 +545,10 @@ void writeFile(char *destfName, writePart f) {
         bool result;
         do {
             
-            memset(line.strContent, 0, line.used);
-            line.used = 0;
             result = f(&line);
             fwprintf(writeFile, L"%ls\n", line.strContent);
-            
+            clearString(&line);
+
         } while(!result);
         
         fclose(writeFile);
@@ -581,14 +579,26 @@ void readFromFile(char *strfName, readPart f, void* grammar, void* object) {
     
     if ((readFile = fopen(strfName, "r")) != NULL) {
         
+        wchar_t input[2];
+        input[1] = L'\0';
         bool result;
         do {
             
-            memset(line.strContent, 0, line.used);
-            line.used = fwscanf(readFile, L"%127ls", line.strContent);
+            do {
+
+                input[0] = nonDosFormat(readFile);
+                writeString(&line, input);
+
+            } while(!feof(readFile) && input[0] != L'\n');
             result = f(&line, grammar, object);
+            clearString(&line);
             
         } while(!feof(readFile) && result);
+        
+        /** ajoute une indication de fin de fichier **/
+        input[0] = L'\xFE';
+        writeString(&line, input);
+        f(&line, grammar, object);
         
         fclose(readFile);
         

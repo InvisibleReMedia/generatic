@@ -92,7 +92,7 @@ myString createString(unsigned int capacity) {
         
         m.capacity = capacity;
         m.used = 0;
-        *(m.strContent) = '\0';
+        memset(m.strContent, 0, capacity);
         assert(wcslen(m.strContent) == 0);
         return m;
         
@@ -102,6 +102,17 @@ myString createString(unsigned int capacity) {
         exit(EXIT_FAILURE);
     }
     
+}
+
+/**
+ **  Clear string
+ **/
+void clearString(myString* p) {
+    
+    memset(p->strContent, 0, p->capacity * sizeof(wchar_t));
+    p->used = 0;
+    assert(wcslen(p->strContent) == 0);
+
 }
 
 /**
@@ -154,6 +165,31 @@ void freeKey(myKey* k) {
     freeString(&k->name);
     freeString(&k->value);
     freeString(&k->question);
+}
+
+/**
+ **  Clear key
+ **/
+void clearKey(myKey* p) {
+    
+    clearString(&p->name);
+    clearString(&p->question);
+    clearString(&p->value);
+    
+}
+
+/**
+ **  Clear list
+ **/
+void clearList(myList* p) {
+    
+    for(int index = 0; index < p->used; ++index) {
+        
+        clearKey(&p->list[index]);
+        
+    }
+    
+    p->used = 0;
 }
 
 /**
@@ -216,7 +252,7 @@ myList* reallocList(myList* m, unsigned int newCapacity) {
         
     } else {
         
-        perror("Erreur dans reallocData");
+        perror("Erreur dans reallocString");
         exit(EXIT_FAILURE);
         
     }
@@ -228,7 +264,7 @@ myList* reallocList(myList* m, unsigned int newCapacity) {
  **   myString : zone de mémoire
  **   newCapacity : nouvelle capacité maximum
  **/
-myString* reallocData(myString* m, unsigned int newCapacity) {
+myString* reallocString(myString* m, unsigned int newCapacity) {
     
     wchar_t* newAlloc = realloc(m->strContent, sizeof(wchar_t) * (newCapacity + 1));
     if (newAlloc != NULL) {
@@ -239,7 +275,7 @@ myString* reallocData(myString* m, unsigned int newCapacity) {
         
     } else {
         
-        perror("Erreur dans reallocData");
+        perror("Erreur dans reallocString");
         exit(EXIT_FAILURE);
         
     }
@@ -247,8 +283,9 @@ myString* reallocData(myString* m, unsigned int newCapacity) {
 }
 
 /**
- **   Ecrit dans la zone de mémoire
+ **   Ecrit à la fin de la zone de mémoire
  **   indépendamment de la taille nécessaire
+ **   Le contenu strContent est recopié dans la string
  **   myString : zone de mémoire
  **   strContent : contenu à ajouter
  **/
@@ -263,9 +300,9 @@ myString* writeString(myString* m, wchar_t* strContent) {
             assert(wcslen(m->strContent) == 0);
             if (m->capacity < l + 1) {
                 if (l < MINSIZE)
-                    reallocData(m, m->capacity + MINSIZE);
+                    reallocString(m, m->capacity + MINSIZE);
                 else
-                    reallocData(m, m->capacity + l + 1);
+                    reallocString(m, m->capacity + l + 1);
             }
             wcscat(m->strContent, strContent);
             m->used = l;
@@ -281,9 +318,9 @@ myString* writeString(myString* m, wchar_t* strContent) {
             
             assert(wcslen(m->strContent) == m->used);
             if (l < MINSIZE)
-                reallocData(m, m->capacity + MINSIZE);
+                reallocString(m, m->capacity + MINSIZE);
             else
-                reallocData(m, m->capacity + l);
+                reallocString(m, m->capacity + l);
             wcscat(m->strContent, strContent);
             m->used += l;
             assert(wcslen(m->strContent) == m->used);
@@ -304,6 +341,7 @@ myString* writeString(myString* m, wchar_t* strContent) {
  **   text : texte de la question
  **   strName : nom de code
  **   value : valeur
+ **   Les données en entrées sont recopiées
  **/
 myList* writeList(myList* m, wchar_t *text, wchar_t* strName, wchar_t* value) {
     

@@ -18,6 +18,9 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
+#include <stdarg.h>
+#include "girlParser.h"
+#include "csv-reader.h"
 #include "installing.h"
 #include "parse-cmd.h"
 #include "cmd.h"
@@ -70,10 +73,6 @@ void entry() {
                     }
                 }
                 
-                
-                if (wcsncmp(line.strContent, L"quit\n", 5) == 0) {
-                    finished = true;
-                }
             }
 
         } while(input[0] != '\n' && input[0] != '\xff' && input[0] != '\0');
@@ -96,6 +95,8 @@ int main(int argc, const char * argv[]) {
     printf("generatic copyright @ 2018\n");
     printf("Automatic programming hobbie\n");
     printf("See help\n");
+    
+    loadCSV();
     
     entry();
     

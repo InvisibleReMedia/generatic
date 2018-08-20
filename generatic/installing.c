@@ -18,8 +18,11 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
-#include "installing.h"
 #include "fileSystem.h"
+#include <stdarg.h>
+#include "girlParser.h"
+#include "csv-reader.h"
+#include "installing.h"
 
 
 /**
@@ -568,8 +571,6 @@ myCommandList install() {
     writeString(&cp.name, L"content");
     writeCommand(&c.parameters, &cp);
     
-    c.execCommand;
-    
     writeCommand(&cmd, &c);
     
     
@@ -698,5 +699,12 @@ myCommandList install() {
 myModel initialize() {
     
     return createModel();
+    
+}
+
+
+void loadCSV() {
+    
+    csvLoader("test.csv");
     
 }

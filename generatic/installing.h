@@ -16,5 +16,6 @@
 
 extern myCommandList install(void);
 extern myModel initialize(void);
+extern void loadCSV(void);
 
 #endif /* installing_h */

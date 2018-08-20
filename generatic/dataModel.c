@@ -346,6 +346,7 @@ myValueKeyList* removeAtValueKeyList(myValueKeyList* m, unsigned int index) {
     
     if (index < m->used) {
         
+        freeValueKey(&m->element[index]);
         for(int counter = index + 1; counter < m->used; ++counter) {
             
             m->element[counter - 1] = m->element[counter];
@@ -373,9 +374,10 @@ myCommandList* removeAtCommandList(myCommandList* m, unsigned int index) {
     
     if (index < m->used) {
         
+        myCommand* p = (myCommand*)m->element;
+        freeCommand(&p[index]);
         for(int counter = index + 1; counter < m->used; ++counter) {
             
-            myCommand* p = (myCommand*)m->element;
             p[counter - 1] = p[counter];
             
         }
@@ -428,7 +430,8 @@ myTabList* removeAtTabList(myTabList* m, unsigned int index) {
 mySessionList* removeAtSessionList(mySessionList* m, unsigned int index) {
     
     if (index < m->used) {
-        
+
+        freeSession(&m->sx[index]);
         for(int counter = index + 1; counter < m->used; ++counter) {
             
             m->sx[counter - 1] = m->sx[counter];
@@ -517,6 +520,7 @@ myModel createModel() {
 /**
  **   Ecrit dans la zone de mémoire
  **   indépendamment de la taille nécessaire
+ **   Le contenu du pointeur fourni ne doit pas être supprimé
  **   myValueKeyList : zone de mémoire
  **   myValueKey : contenu à ajouter
  **/
@@ -587,6 +591,7 @@ myTabList* writeTab(myTabList* m, unsigned int u) {
 /**
  **   Ecrit dans la zone de mémoire
  **   indépendamment de la taille nécessaire
+ **   Le contenu du pointeur fourni ne doit pas être supprimé
  **   myCommandList : zone de mémoire
  **   c : contenu à ajouter
  **/
@@ -628,6 +633,7 @@ myCommandList* writeCommand(myCommandList* m, myCommand* c) {
 /**
  **   Ecrit dans la zone de mémoire
  **   indépendamment de la taille nécessaire
+ **   Le contenu du pointeur fourni ne doit pas être supprimé
  **   mySessionList : zone de mémoire
  **   s : contenu à ajouter
  **/
