@@ -56,41 +56,65 @@ bool searchCommand(myCommand* src, myCommandList* builtin) {
             
         }
         
-        /** s'il ne reste qu'une seule commande possible **/
-        if (optional.used == 1) {
+        /** compter le nombre de paramètres et sélectionner celui qui en
+         ** a le même nombre **/
+        if (optional.used > 0) {
             
-            myCommand* d = (myCommand*)optional.element;
-            myCommand* opar = (myCommand*)d->parameters.element;
-            myCommand* srcpar = (myCommand*)src->parameters.element;
-            /** iterer les paramètres, identifier les noms des paramètres */
-            for(int index = 0; index < d->parameters.used; ++index) {
-               
+            myCommandList uniqueCommand = createCommandList(selected.used);
+            myCommand* c = (myCommand*)optional.element;
+            for(int index = 0; index < optional.used; ++index) {
                 
-                if (index < src->parameters.used) {
+                if (c[index].parameters.used == src->parameters.used) {
                     
-                    /** recopie le name dans la commande **/
-                    writeString(&srcpar[index].name, opar[index].name.strContent);
-
+                    writeCommand(&uniqueCommand, &c[index]);
+                    
                 }
+                
             }
-            
-            src->execCommand = d->execCommand;
-            
-            return true;
-            
-        }
-        else if (optional.used > 1)
-        {
-            
-            fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls avec certitude\n", src->name.strContent, src->option.strContent);
-            return false;
+        
+            /** s'il ne reste qu'une seule commande possible **/
+            if (uniqueCommand.used == 1) {
+                
+                myCommand* d = (myCommand*)uniqueCommand.element;
+                myCommand* opar = (myCommand*)d->parameters.element;
+                myCommand* srcpar = (myCommand*)src->parameters.element;
+                /** iterer les paramètres, identifier les noms des paramètres */
+                for(int index = 0; index < d->parameters.used; ++index) {
+                   
+                    
+                    if (index < src->parameters.used) {
+                        
+                        /** recopie le name dans la commande **/
+                        writeString(&srcpar[index].name, opar[index].name.strContent);
+
+                    }
+                }
+                
+                src->execCommand = d->execCommand;
+                
+                return true;
+                
+            }
+            else if (uniqueCommand.used > 1)
+            {
+                
+                fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls avec certitude\n", src->name.strContent, src->option.strContent);
+                return false;
+                
+            }
+            else
+            {
+                fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls avec %d paramètres\n", src->name.strContent, src->option.strContent, src->parameters.used);
+                return false;
+
+            }
             
         }
         else
         {
             fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls\n", src->name.strContent, src->option.strContent);
             return false;
-
+            
         }
 
     }

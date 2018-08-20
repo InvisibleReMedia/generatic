@@ -8,5 +8,4 @@
 #
 
 cd $1
-mkdir $2
-
+rm -rf $2

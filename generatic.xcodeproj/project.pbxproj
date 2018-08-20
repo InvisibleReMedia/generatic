@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0919B32D212791F9000298A5 /* testDir.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B32C212791A6000298A5 /* testDir.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		090D1DB12129D31F00109792 /* girlParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 090D1DAF2129D31F00109792 /* girlParser.c */; };
+		0919B32D212791F9000298A5 /* testPath.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B32C212791A6000298A5 /* testPath.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		0919B32F21279674000298A5 /* testFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B32E2127964C000298A5 /* testFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		0919B33121279B5F000298A5 /* createFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0919B33021279B15000298A5 /* createFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		0928003A2126B7CD003A3B0E /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 092800382126B7CD003A3B0E /* cmd.c */; };
@@ -16,6 +17,11 @@
 		09506ECE212481F500A9741A /* library-strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 09506ECC212481F500A9741A /* library-strings.c */; };
 		0988E688212561B100D58B2E /* installing.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E686212561B100D58B2E /* installing.c */; };
 		0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 0988E689212570EC00D58B2E /* parse-cmd.c */; };
+		09C91EDE2128156E00E6DB62 /* deleteDir.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09C91EDD212813D600E6DB62 /* deleteDir.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		09C91EE0212826E500E6DB62 /* testDir.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09C91EDF212818AA00E6DB62 /* testDir.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		09C91EE22128284600E6DB62 /* deleteFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09C91EE12128282300E6DB62 /* deleteFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		09C91EE421282D3E00E6DB62 /* readFile.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09C91EE321282B6F00E6DB62 /* readFile.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		09C91EE72128436A00E6DB62 /* csv-reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 09C91EE52128436A00E6DB62 /* csv-reader.c */; };
 		09F581312126EE25001A788F /* fileSystem.c in Sources */ = {isa = PBXBuildFile; fileRef = 09F5812F2126EE25001A788F /* fileSystem.c */; };
 		09F5814E21277707001A788F /* createDirectory.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = 09F58134212773A0001A788F /* createDirectory.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -27,9 +33,13 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				09C91EE421282D3E00E6DB62 /* readFile.sh in CopyFiles */,
+				09C91EE22128284600E6DB62 /* deleteFile.sh in CopyFiles */,
+				09C91EE0212826E500E6DB62 /* testDir.sh in CopyFiles */,
+				09C91EDE2128156E00E6DB62 /* deleteDir.sh in CopyFiles */,
 				0919B33121279B5F000298A5 /* createFile.sh in CopyFiles */,
 				0919B32F21279674000298A5 /* testFile.sh in CopyFiles */,
-				0919B32D212791F9000298A5 /* testDir.sh in CopyFiles */,
+				0919B32D212791F9000298A5 /* testPath.sh in CopyFiles */,
 				09F5814E21277707001A788F /* createDirectory.sh in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -37,7 +47,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0919B32C212791A6000298A5 /* testDir.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testDir.sh; sourceTree = "<group>"; };
+		090D1DAF2129D31F00109792 /* girlParser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = girlParser.c; sourceTree = "<group>"; };
+		090D1DB02129D31F00109792 /* girlParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = girlParser.h; sourceTree = "<group>"; };
+		0919B32C212791A6000298A5 /* testPath.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testPath.sh; sourceTree = "<group>"; };
 		0919B32E2127964C000298A5 /* testFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testFile.sh; sourceTree = "<group>"; };
 		0919B33021279B15000298A5 /* createFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = createFile.sh; sourceTree = "<group>"; };
 		092800382126B7CD003A3B0E /* cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cmd.c; sourceTree = "<group>"; };
@@ -52,6 +64,12 @@
 		0988E687212561B100D58B2E /* installing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = installing.h; sourceTree = "<group>"; };
 		0988E689212570EC00D58B2E /* parse-cmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "parse-cmd.c"; sourceTree = "<group>"; };
 		0988E68A212570EC00D58B2E /* parse-cmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "parse-cmd.h"; sourceTree = "<group>"; };
+		09C91EDD212813D600E6DB62 /* deleteDir.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = deleteDir.sh; sourceTree = "<group>"; };
+		09C91EDF212818AA00E6DB62 /* testDir.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = testDir.sh; sourceTree = "<group>"; };
+		09C91EE12128282300E6DB62 /* deleteFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = deleteFile.sh; sourceTree = "<group>"; };
+		09C91EE321282B6F00E6DB62 /* readFile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = readFile.sh; sourceTree = "<group>"; };
+		09C91EE52128436A00E6DB62 /* csv-reader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "csv-reader.c"; sourceTree = "<group>"; };
+		09C91EE62128436A00E6DB62 /* csv-reader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "csv-reader.h"; sourceTree = "<group>"; };
 		09F5812F2126EE25001A788F /* fileSystem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fileSystem.c; sourceTree = "<group>"; };
 		09F581302126EE25001A788F /* fileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileSystem.h; sourceTree = "<group>"; };
 		09F58134212773A0001A788F /* createDirectory.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = createDirectory.sh; sourceTree = SOURCE_ROOT; };
@@ -71,8 +89,12 @@
 		09506EB92124816700A9741A = {
 			isa = PBXGroup;
 			children = (
+				09C91EE321282B6F00E6DB62 /* readFile.sh */,
+				09C91EE12128282300E6DB62 /* deleteFile.sh */,
+				09C91EDF212818AA00E6DB62 /* testDir.sh */,
+				09C91EDD212813D600E6DB62 /* deleteDir.sh */,
 				0919B33021279B15000298A5 /* createFile.sh */,
-				0919B32C212791A6000298A5 /* testDir.sh */,
+				0919B32C212791A6000298A5 /* testPath.sh */,
 				0919B32E2127964C000298A5 /* testFile.sh */,
 				09F58134212773A0001A788F /* createDirectory.sh */,
 				09506EC42124816700A9741A /* generatic */,
@@ -104,6 +126,10 @@
 				092800392126B7CD003A3B0E /* cmd.h */,
 				09F5812F2126EE25001A788F /* fileSystem.c */,
 				09F581302126EE25001A788F /* fileSystem.h */,
+				09C91EE52128436A00E6DB62 /* csv-reader.c */,
+				09C91EE62128436A00E6DB62 /* csv-reader.h */,
+				090D1DAF2129D31F00109792 /* girlParser.c */,
+				090D1DB02129D31F00109792 /* girlParser.h */,
 			);
 			path = generatic;
 			sourceTree = "<group>";
@@ -165,9 +191,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0928003A2126B7CD003A3B0E /* cmd.c in Sources */,
+				09C91EE72128436A00E6DB62 /* csv-reader.c in Sources */,
 				094667E821253811002CE844 /* dataModel.c in Sources */,
 				09506ECE212481F500A9741A /* library-strings.c in Sources */,
 				0988E688212561B100D58B2E /* installing.c in Sources */,
+				090D1DB12129D31F00109792 /* girlParser.c in Sources */,
 				09F581312126EE25001A788F /* fileSystem.c in Sources */,
 				0988E68B212570EC00D58B2E /* parse-cmd.c in Sources */,
 				09506EC62124816700A9741A /* main.c in Sources */,

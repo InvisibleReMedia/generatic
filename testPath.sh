@@ -7,6 +7,12 @@
 #
 #
 
-cd $1
-mkdir $2
+if [ -d $1 ]
+then
+    echo $1 exist
+    exit 0
+else
+    echo $1 !exist
+    exit 2
+fi
 

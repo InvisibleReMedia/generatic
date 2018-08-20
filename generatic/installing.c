@@ -21,38 +21,336 @@
 #include "installing.h"
 #include "fileSystem.h"
 
+
+/**
+ **   Quit application
+ **/
 bool quit(myPtrModel model, myPtrCommand cmd) {
     
     exit(EXIT_SUCCESS);
     
 }
 
+/**
+ **  New project
+ **
+ **/
 bool newProject(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    
+    if (ptrCmd->parameters.used == 2) {
+
+        myString path = createString(MINSIZE);
+        myString dir = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&dir, p[1].value.strContent);
+        
+        /** create directory if not exist **/
+        createDirectory(path.strContent, dir.strContent);
+
+        return true;
+    }
+    
+    wprintf(L"new project [path],[file] : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  Delete project
+ **
+ **/
+bool deleteProject(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    
+    if (ptrCmd->parameters.used == 2) {
+        
+        myString path = createString(MINSIZE);
+        myString dir = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&dir, p[1].value.strContent);
+        
+        /** delete directory if exist **/
+        deleteDirectory(path.strContent, dir.strContent);
+        
+        return true;
+    }
+    
+    wprintf(L"delete project [path],[file] : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  Open project
+ **
+ **/
+bool openProject(myPtrModel model, myPtrCommand cmd) {
     
     myCommand* ptrCmd = (myCommand*)cmd;
     myModel* ptrModel = (myModel*)model;
     
     if (ptrCmd->parameters.used == 2) {
+        
+        myString path = createString(MINSIZE);
+        myString dir = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&dir, p[1].value.strContent);
+        
+        writeString(&ptrModel->currentSession->currentProject.path, path.strContent);
+        writeString(&ptrModel->currentSession->currentProject.name, dir.strContent);
+        ptrModel->currentSession->currentProject.isReadOnly = false;
+        
+        return true;
+    }
+    
+    wprintf(L"open project [path],[file] : manque path et/ou file\n");
+    return false;
+}
 
+/**
+ **  Open readonly project
+ **
+ **/
+bool openReadOnlyProject(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+    
+    if (ptrCmd->parameters.used == 3) {
+        
+        myString path = createString(MINSIZE);
+        myString dir = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&dir, p[1].value.strContent);
+        
+        writeString(&ptrModel->currentSession->currentProject.path, path.strContent);
+        writeString(&ptrModel->currentSession->currentProject.name, dir.strContent);
+        ptrModel->currentSession->currentProject.isReadOnly = true;
+        
+        return true;
+    }
+    
+    wprintf(L"open project [path],[file],readonly : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  New file
+ **
+ **/
+bool newFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+
+    if (ptrCmd->parameters.used == 2) {
+        
         myString path = createString(MINSIZE);
         myString file = createString(MINSIZE);
         myCommand* p = ptrCmd->parameters.element;
         writeString(&path, p[0].value.strContent);
         writeString(&file, p[1].value.strContent);
         
-        writeString(&ptrModel->currentSession->currentProject.path, path.strContent);
-        writeString(&ptrModel->currentSession->currentProject.name, file.strContent);
-        
-        /** create directory and file if not exist **/
+        /** create directory if not exist **/
         createFile(path.strContent, file.strContent);
-
+        
         return true;
     }
     
-    wprintf(L"new project,[path],[file] : manque path et/ou file\n");
+    wprintf(L"new file [path],[file] : manque path et/ou file\n");
     return false;
 }
 
+/**
+ **  New file
+ **
+ **/
+bool newLanguageFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+
+    if (ptrCmd->parameters.used == 3) {
+        
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myString lan = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        writeString(&lan, p[2].value.strContent);
+        
+        /** create directory if not exist **/
+        createFile(path.strContent, file.strContent);
+        
+        writeString(&ptrModel->currentSession->language, lan.strContent);
+        
+        return true;
+    }
+    
+    wprintf(L"new file [path],[file] : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  Delete file
+ **
+ **/
+bool deleteProjectFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    
+    if (ptrCmd->parameters.used == 2) {
+        
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        
+        /** delete file if exist **/
+        deleteFile(path.strContent, file.strContent);
+        
+        return true;
+    }
+    
+    wprintf(L"delete file [path],[file] : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  Open file
+ **
+ **/
+bool openFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+    
+    if (ptrCmd->parameters.used == 2) {
+        
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        
+        writeString(&ptrModel->currentSession->currentFile.path, path.strContent);
+        writeString(&ptrModel->currentSession->currentFile.name, file.strContent);
+        ptrModel->currentSession->currentFile.isReadOnly = false;
+        
+        return true;
+    }
+    
+    wprintf(L"open file [path],[file] : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **  Open readonly file
+ **
+ **/
+bool openReadOnlyFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+    
+    if (ptrCmd->parameters.used == 3) {
+        
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        
+        writeString(&ptrModel->currentSession->currentFile.path, path.strContent);
+        writeString(&ptrModel->currentSession->currentFile.name, file.strContent);
+        ptrModel->currentSession->currentFile.isReadOnly = true;
+        
+        return true;
+    }
+    
+    wprintf(L"open file [path],[file],readonly : manque path et/ou file\n");
+    return false;
+}
+
+/**
+ **   Select language
+ **
+ **/
+bool selectLanguage(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    myModel* ptrModel = (myModel*)model;
+    
+    if (ptrCmd->parameters.used == 1) {
+        
+        myString lan = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&lan, p[0].value.strContent);
+        
+        writeString(&ptrModel->currentSession->language, lan.strContent);
+        
+        return true;
+    }
+    
+    wprintf(L"select language [name] : manque name\n");
+    return false;
+}
+
+
+/**
+ **   Read file
+ **
+ **/
+bool readFile(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    
+    if (ptrCmd->parameters.used == 2) {
+        
+        myString path = createString(MINSIZE);
+        myString file = createString(MINSIZE);
+        myCommand* p = ptrCmd->parameters.element;
+        writeString(&path, p[0].value.strContent);
+        writeString(&file, p[1].value.strContent);
+        
+        printFile(path.strContent, file.strContent);
+        
+        return true;
+    }
+    
+    wprintf(L"read file [path],[file] : manque path et/ou file\n");
+    return false;
+
+}
+
+/**
+ **   Append code
+ **/
+bool appendCode(myPtrModel model, myPtrCommand cmd) {
+    
+    myCommand* ptrCmd = (myCommand*)cmd;
+    
+    if (ptrCmd->parameters.used == 1) {
+        
+        
+        return true;
+        
+    }
+    
+    wprintf(L"add code [content] : manque content\n");
+    return false;
+
+}
+
+/**
+ **  Install commands
+ **/
 myCommandList install() {
     
     
@@ -96,6 +394,8 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
 
+    c.execCommand = deleteProject;
+
     writeCommand(&cmd, &c);
     
     // OPEN project, path, name
@@ -111,6 +411,8 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
 
+    c.execCommand = openProject;
+    
     writeCommand(&cmd, &c);
 
     // OPEN project, path, name, readonly
@@ -129,6 +431,8 @@ myCommandList install() {
     writeString(&cp.name, L"readonly");
     writeCommand(&c.parameters, &cp);
     
+    c.execCommand = openReadOnlyProject;
+    
     writeCommand(&cmd, &c);
     
 
@@ -144,6 +448,8 @@ myCommandList install() {
     cp = createCommand();
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
+    
+    c.execCommand = newFile;
     
     writeCommand(&cmd, &c);
     
@@ -163,6 +469,7 @@ myCommandList install() {
     writeString(&cp.name, L"language");
     writeCommand(&c.parameters, &cp);
 
+    c.execCommand = newLanguageFile;
     
     writeCommand(&cmd, &c);
 
@@ -179,6 +486,8 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
     
+    c.execCommand = deleteProjectFile;
+    
     writeCommand(&cmd, &c);
     
     // OPEN file, path, name
@@ -193,6 +502,8 @@ myCommandList install() {
     cp = createCommand();
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
+    
+    c.execCommand = openFile;
     
     writeCommand(&cmd, &c);
     
@@ -212,6 +523,8 @@ myCommandList install() {
     writeString(&cp.name, L"readonly");
     writeCommand(&c.parameters, &cp);
     
+    c.execCommand = openReadOnlyFile;
+    
     writeCommand(&cmd, &c);
     
     // SELECT language, name
@@ -224,6 +537,8 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
 
+    c.execCommand = selectLanguage;
+    
     writeCommand(&cmd, &c);
 
     // READ file, path, name
@@ -239,6 +554,8 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
 
+    c.execCommand = readFile;
+    
     writeCommand(&cmd, &c);
 
     // ADD code, content
@@ -250,6 +567,8 @@ myCommandList install() {
     cp = createCommand();
     writeString(&cp.name, L"content");
     writeCommand(&c.parameters, &cp);
+    
+    c.execCommand;
     
     writeCommand(&cmd, &c);
     

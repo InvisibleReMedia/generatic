@@ -88,6 +88,7 @@ typedef struct {
         
         myString path;          /** path of project **/
         myString name;          /** project name **/
+        bool     isReadOnly;    /** readonly switch **/
         
     } currentProject;           /** current project **/
     
@@ -95,6 +96,7 @@ typedef struct {
         
         myString path;          /** path of file **/
         myString name;          /** file name **/
+        bool     isReadOnly;    /** readonly switch **/
 
     } currentFile;              /** current file **/
 

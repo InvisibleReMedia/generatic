@@ -24,6 +24,27 @@
  **   \r
  **
  **/
+bool nonDosFormatString(myString s, wchar_t* c, int* index) {
+    
+    if (*index < s.used) {
+        *c = s.strContent[*index];
+        ++(*index);
+        if (*c == L'\r') {
+            return nonDosFormatString(s, c, index);
+        }
+        else
+            return true;
+    }
+    else
+        return false;
+    
+}
+
+/**
+ **   Hack to do not read
+ **   \r
+ **
+ **/
 wchar_t nonDosFormat(FILE* io) {
     
     wchar_t c = fgetwc(io);
@@ -378,53 +399,6 @@ wchar_t* search(myList* m, wchar_t* strName) {
 }
 
 
-
-/**
- **   Efface un fichier
- **   strfName : nom du fichier
- **/
-void eraseFile(char* strfName) {
-    
-    remove(strfName);
-    
-}
-
-/**
- **   Ecrit dans un fichier
- **   strfName : nom du fichier
- **   strContent : texte à écrire
- **/
-void writeFile(char *destfName, writeLine f) {
-    
-    myString line;
-    FILE* writeFile = NULL;
-    
-    line = createString(MINSIZE);
-    
-    eraseFile(destfName);
-    
-        if ((writeFile = fopen(destfName, "w")) != NULL) {
-            
-            bool result;
-            do {
-
-                memset(line.strContent, 0, line.used);
-                line.used = 0;
-                result = f(&line);
-                fwprintf(writeFile, L"%s\n", line.strContent);
-                
-            } while(!result);
-
-            fclose(writeFile);
-            
-        } else {
-            
-            perror("Fichier en erreur :");
-        }
-        
-    freeString(&line);
-    
-}
 
 
 

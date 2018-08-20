@@ -8,5 +8,11 @@
 #
 
 cd $1
-mkdir $2
-
+if [ -e $2 ]
+then
+    sed = $2 | sed 'N;s/\n/ /'
+    exit 0
+else
+    echo $2 !file
+    exit 2
+fi

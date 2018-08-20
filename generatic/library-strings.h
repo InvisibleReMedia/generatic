@@ -50,7 +50,7 @@ typedef struct {
     
 } myList;
 
-
+extern bool nonDosFormatString(myString, wchar_t*, int*);
 extern wchar_t nonDosFormat(FILE*);
 extern myList createList(unsigned int);
 extern myKey createKey(void);
@@ -62,8 +62,5 @@ extern int compareString(myString, myString);
 extern myString* writeString(myString*, wchar_t*);
 extern myList* writeList(myList*, wchar_t*, wchar_t*, wchar_t*);
 extern wchar_t* search(myList*, wchar_t*);
-extern void eraseFile(char*);
-typedef bool (*writeLine)(myString*);
-extern void writeFile(char*, writeLine);
 
 #endif /* library_strings_h */

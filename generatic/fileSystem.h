@@ -13,8 +13,15 @@
 #ifndef fileSystem_h
 #define fileSystem_h
 
-extern void createOneDirectory(wchar_t*, wchar_t*);
-extern void createAllDirectory(wchar_t*);
+extern void createDirectory(wchar_t*, wchar_t*);
 extern void createFile(wchar_t*, wchar_t*);
+extern void deleteFile(wchar_t*, wchar_t*);
+extern void deleteDirectory(wchar_t*,wchar_t*);
+extern void printFile(wchar_t*,wchar_t*);
+extern void eraseFile(char*);
+typedef bool (*writePart)(myString*);
+typedef bool (*readPart)(myString*, void*, void*);
+extern void writeFile(char*, writePart);
+extern void readFromFile(char*, readPart, void*, void*);
 
 #endif /* fileSystem_h */

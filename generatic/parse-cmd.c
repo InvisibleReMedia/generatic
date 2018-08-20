@@ -21,27 +21,6 @@
 #include "parse-cmd.h"
 
 /**
- **   Hack to do not read
- **   \r
- **
- **/
-bool nonDosFormatString(myString s, wchar_t* c, int* index) {
-    
-    if (*index < s.used) {
-        *c = s.strContent[*index];
-        ++(*index);
-        if (*c == L'\r') {
-            return nonDosFormatString(s, c, index);
-        }
-        else
-            return true;
-    }
-    else
-        return false;
-    
-}
-
-/**
  **  Write string and empty src, udpate state and afterSpace
  **
  **/
@@ -114,6 +93,7 @@ bool parseCommand(myString s, myCommand* result) {
 
                 } else {
 
+                    /** recherche de commande dans le fichier csv **/
                     writeParameter(result, &value, &state, &afterSpace);
 
                 }
@@ -130,6 +110,7 @@ bool parseCommand(myString s, myCommand* result) {
         
     }
     
+    /** possible ? **/
     if (value.used > 0) {
         
         if (state == 0) {
