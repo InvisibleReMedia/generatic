@@ -1,0 +1,52 @@
+# Project: generatic
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = ../generatic/cmd.o ../generatic/csv-reader.o ../generatic/dataModel.o ../generatic/fileSystem.o ../generatic/girlParser.o ../generatic/installing.o ../generatic/library-strings.o ../generatic/main.o ../generatic/parse-cmd.o
+LINKOBJ  = ../generatic/cmd.o ../generatic/csv-reader.o ../generatic/dataModel.o ../generatic/fileSystem.o ../generatic/girlParser.o ../generatic/installing.o ../generatic/library-strings.o ../generatic/main.o ../generatic/parse-cmd.o
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -std=c99 -g3
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
+BIN      = generatic.exe
+CXXFLAGS = $(CXXINCS) -std=gnu99 -g3
+CFLAGS   = $(INCS) -std=gnu99 -g3 -DUNICODE=1
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+../generatic/cmd.o: generatic/cmd.c
+	$(CC) -c generatic/cmd.c -o ../generatic/cmd.o $(CFLAGS)
+
+../generatic/csv-reader.o: generatic/csv-reader.c
+	$(CC) -c generatic/csv-reader.c -o ../generatic/csv-reader.o $(CFLAGS)
+
+../generatic/dataModel.o: generatic/dataModel.c
+	$(CC) -c generatic/dataModel.c -o ../generatic/dataModel.o $(CFLAGS)
+
+../generatic/fileSystem.o: generatic/fileSystem.c
+	$(CC) -c generatic/fileSystem.c -o ../generatic/fileSystem.o $(CFLAGS)
+
+../generatic/girlParser.o: generatic/girlParser.c
+	$(CC) -c generatic/girlParser.c -o ../generatic/girlParser.o $(CFLAGS)
+
+../generatic/installing.o: generatic/installing.c
+	$(CC) -c generatic/installing.c -o ../generatic/installing.o $(CFLAGS)
+
+../generatic/library-strings.o: generatic/library-strings.c
+	$(CC) -c generatic/library-strings.c -o ../generatic/library-strings.o $(CFLAGS)
+
+../generatic/main.o: generatic/main.c
+	$(CC) -c generatic/main.c -o ../generatic/main.o $(CFLAGS)
+
+../generatic/parse-cmd.o: generatic/parse-cmd.c
+	$(CC) -c generatic/parse-cmd.c -o ../generatic/parse-cmd.o $(CFLAGS)

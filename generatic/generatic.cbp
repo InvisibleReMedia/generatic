@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="generatic" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/generatic" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/generatic" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="cmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cmd.h" />
+		<Unit filename="csv-reader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="csv-reader.h" />
+		<Unit filename="dataModel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="dataModel.h" />
+		<Unit filename="fileSystem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fileSystem.h" />
+		<Unit filename="girlParser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="girlParser.h" />
+		<Unit filename="installing.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="installing.h" />
+		<Unit filename="library-strings.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="library-strings.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="parse-cmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="parse-cmd.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

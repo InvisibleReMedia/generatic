@@ -1,0 +1,108 @@
+﻿Build started 22/08/2018 13:05:29.
+     1>Project "C:\Users\Olivier\Source\Repos\generatic\generatic\generatic.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS- /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt cmd.c "csv-reader.c" dataModel.c PowerShell\fileSystem.c girlParser.c installing.c "library-strings.c" main.c "parse-cmd.c"
+     1>cl : Command line warning D9025: overriding '/sdl' with '/GS-'
+         parse-cmd.c
+         main.c
+         library-strings.c
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(29): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(186): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(204): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(307): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(284) : see declaration of 'wcscat'
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(313): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(284) : see declaration of 'wcscat'
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(324): warning C4996: 'wcscat': This function or variable may be unsafe. Consider using wcscat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(284) : see declaration of 'wcscat'
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(354): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\library-strings.c(415): warning C4018: '<' : signed/unsigned mismatch
+         installing.c
+     1>c:\users\olivier\source\repos\generatic\generatic\installing.c(761): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(356) : see declaration of 'sprintf'
+         girlParser.c
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(224): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(245): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(266): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(287): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(412): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(510): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(689): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(775): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(778): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(782): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(822): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(825): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(829): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(854): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(857): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(879): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(882): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(889): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(912): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(940): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\girlparser.c(957): warning C4018: '<' : signed/unsigned mismatch
+         fileSystem.c
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(50): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(118) : see declaration of 'strcat'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(57): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(118) : see declaration of 'strcat'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(73): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : see declaration of 'strcpy'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(93): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(118) : see declaration of 'strcat'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(100): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(118) : see declaration of 'strcat'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(105): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(118) : see declaration of 'strcat'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(121): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : see declaration of 'strcpy'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(245): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : see declaration of 'strcpy'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(247): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : see declaration of 'strcpy'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(547): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(211) : see declaration of 'fopen'
+     1>c:\users\olivier\source\repos\generatic\generatic\powershell\filesystem.c(584): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(211) : see declaration of 'fopen'
+         dataModel.c
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(177): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(198): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(231): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(351): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(380): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(407): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\datamodel.c(436): warning C4018: '<' : signed/unsigned mismatch
+         csv-reader.c
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(170): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(192): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(194): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(229): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(324): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(332): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(334): warning C4018: '<' : signed/unsigned mismatch
+         cmd.c
+     1>c:\users\olivier\source\repos\generatic\generatic\cmd.c(34): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\cmd.c(49): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\cmd.c(65): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\cmd.c(82): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\olivier\source\repos\generatic\generatic\cmd.c(85): warning C4018: '<' : signed/unsigned mismatch
+         Generating Code...
+     1>c:\users\olivier\source\repos\generatic\generatic\csv-reader.c(244): warning C4716: 'ImportCommands' : must return a value
+     1>c:\users\olivier\source\repos\generatic\generatic\installing.c(772): warning C4716: 'installLanguageCommands' : must return a value
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Olivier\Source\Repos\generatic\Debug\generatic.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Olivier\Source\Repos\generatic\Debug\generatic.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Olivier\Source\Repos\generatic\Debug\generatic.lib" /MACHINE:X86 Debug\cmd.obj
+         "Debug\csv-reader.obj"
+         Debug\dataModel.obj
+         Debug\fileSystem.obj
+         Debug\girlParser.obj
+         Debug\installing.obj
+         "Debug\library-strings.obj"
+         Debug\main.obj
+         "Debug\parse-cmd.obj"
+         generatic.vcxproj -> C:\Users\Olivier\Source\Repos\generatic\Debug\generatic.exe
+     1>Done Building Project "C:\Users\Olivier\Source\Repos\generatic\generatic\generatic.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.54

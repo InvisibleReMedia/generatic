@@ -57,7 +57,7 @@ wchar_t* setCharList(int z, ...) {
     
     for(int index = 0; index < z; ++index) {
         
-        listChar[index] = va_arg(chars, int);
+        listChar[index] = va_arg(chars, wchar_t);
         
     }
     
@@ -91,23 +91,29 @@ action* setActionList(int z, ...) {
 /**
  **   Set a list of string
  **/
+static myString* listString = NULL;
 myString* setStringList(int z, ...) {
     
-    va_list(actions);
-    va_start(actions, z);
-    myString* tabString = (myString*)malloc((z+1) * sizeof(myString));
+    va_list(strings);
+	va_start(strings, z);
+	if (listString != NULL)
+		free(listString);
+	listString = (myString*)malloc((z + 1) * sizeof(myString));
     
     for(int index = 0; index < z; ++index) {
         
-        myString arg = va_arg(actions, myString);
-        tabString[index] = createString(arg.used);
-        writeString(&tabString[index], arg.strContent);
+		myString arg = va_arg(strings, myString);
+		listString[index] = createString(arg.used);
+		writeString(&listString[index], arg.strContent);
         
     }
     
-    va_end(actions);
-    return tabString;
+	va_end(strings);
+	return listString;
 }
+
+
+
 
 /**
  **   Crée une liste limitée
@@ -206,6 +212,89 @@ myActionList createActionList(unsigned int capacity) {
 }
 
 
+/**  
+ **  Libère la mémoire
+ **  myLookaheadList : data
+ **/
+void freeLookaheadList(myLookaheadList* p) {
+
+	myLookahead* current = p->list;
+
+	int index;
+	for (index = 0; index < p->used; ++index, ++current) {
+
+		freeLookahead(current);
+
+	}
+
+	free(p->list);
+	p->capacity = 0;
+	p->used = 0;
+
+}
+
+/**
+ **  Libère la mémoire
+ **  myKeywordList : data
+ **/
+void freeKeywordList(myKeywordList* p) {
+
+	myKeyword* current = p->keys;
+
+	int index;
+	for (index = 0; index < p->used; ++index, ++current) {
+
+		freeKeyword(current);
+
+	}
+
+	free(p->keys);
+	p->capacity = 0;
+	p->used = 0;
+
+}
+
+/**
+**  Libère la mémoire
+**  myAutomaticMoveList : data
+**/
+void freeAutomaticMoveList(myAutomaticMoveList* p) {
+
+	myAutomaticMove* current = p->moves;
+
+	int index;
+	for (index = 0; index < p->used; ++index, ++current) {
+
+		freeAutomaticMove(current);
+
+	}
+
+	free(p->moves);
+	p->capacity = 0;
+	p->used = 0;
+
+}
+
+/**
+**  Libère la mémoire
+**  myActionList : data
+**/
+void freeActionList(myActionList* p) {
+
+	myAction* current = p->actions;
+
+	int index;
+	for (index = 0; index < p->used; ++index, ++current) {
+
+		freeAction(current);
+
+	}
+
+	free(p->actions);
+	p->capacity = 0;
+	p->used = 0;
+
+}
 
 
 
@@ -213,11 +302,11 @@ myActionList createActionList(unsigned int capacity) {
  **  Create a girl parser
  **
  **/
-myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds) {
+myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds, myString significantChars) {
     
     myGirlParser p;
     
-    p.notAvalaible = false;
+    p.notAvailable = false;
     p.state_start = start;
     p.countState = countEnds;
     p.state_end = (int*)malloc(sizeof(int) * countEnds);
@@ -229,10 +318,31 @@ myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds) {
     
     p.currentState = start;
     p.input = createString(0);
+	p.significantChars = createString(significantChars.used);
+	writeString(&p.significantChars, significantChars.strContent);
 
     return p;
 }
 
+
+/**
+ **
+ **  Libère la mémoire
+ **  myGirlParser : data
+ **/
+void freeGirlParser(myGirlParser* p) {
+
+	free(p->state_end);
+	freeLookaheadList(&p->lookaheads);
+	freeKeywordList(&p->keywords);
+	freeAutomaticMoveList(&p->autoMoves);
+	freeActionList(&p->works);
+
+	freeString(&p->input);
+	freeString(&p->significantChars);
+
+	memset(p, 0, sizeof(myGirlParser));
+}
 
 /**
  **  Create a lookahead
@@ -275,6 +385,69 @@ myLookaheadList* reallocLookahead(myLookaheadList* la, unsigned int newCapacity)
     }
 
 }
+
+
+/**
+ **  Libère la mémoire
+ **  myLookahead : data
+ **/
+void freeLookahead(myLookahead* p) {
+
+	free(p->state_for);
+	free(p->if_c);
+	p->countState = 0;
+	p->countChars = 0;
+	p->state_for = NULL;
+	p->if_c = NULL;
+
+}
+
+/**
+**  Libère la mémoire
+**  myKeyword : data
+**/
+void freeKeyword(myKeyword* p) {
+
+	free(p->state_for);
+	for (int index = 0; index < p->countStrings; ++index) {
+		freeString(&p->if_s[index]);
+	}
+	free(p->if_s);
+	p->countState = 0;
+	p->countStrings = 0;
+	p->state_for = NULL;
+	p->if_s = NULL;
+
+}
+
+/**
+**  Libère la mémoire
+**  myAutomaticMove : data
+**/
+void freeAutomaticMove(myAutomaticMove* p) {
+
+	free(p->state_from);
+	p->countState = 0;
+	p->state_from = NULL;
+
+}
+
+/**
+**  Libère la mémoire
+**  myAction : data
+**/
+void freeAction(myAction* p) {
+
+	free(p->states_at);
+	free(p->functions);
+	p->countState = 0;
+	p->countFunctions = 0;
+	p->states_at = NULL;
+	p->functions = NULL;
+
+}
+
+
 
 /**
  **   Ecrit dans la liste
@@ -333,7 +506,7 @@ myKeyword createKeyword(int* states_for, unsigned int countFor, myString* sList,
     h.countState = countFor;
     memcpy(h.state_for, states_for, countFor * sizeof(int));
     h.if_s = (myString*)malloc(sizeof(myString) * countString);
-    h.countChars = countString;
+    h.countStrings = countString;
     for(int index = 0; index < countString; ++index) {
         
         h.if_s[index] = createString(sList[index].used);
@@ -590,6 +763,56 @@ void addAction(myGirlParser* girl, int* states_at, unsigned int countAt, action*
     
 }
 
+
+/**
+ **   Search a keyword
+ **
+ **/
+bool searchKeyword(myGirlParser* p, int state, int* next) {
+
+	bool found = false;
+	int offIndex = p->currentIndex;
+	for (int index = 0; index < p->keywords.used && !found; ++index) {
+
+		myKeyword* l = &p->keywords.keys[index];
+		for (int stateIndex = 0; stateIndex < l->countState && !found; ++stateIndex) {
+
+			if (l->state_for[stateIndex] == state) {
+
+				for (int stringIndex = 0; stringIndex < l->countStrings && !found; ++stringIndex) {
+
+					if (wcsncmp(l->if_s[stringIndex].strContent, p->input.strContent + p->currentIndex, l->if_s[stringIndex].used) == 0) {
+						p->currentIndex += l->if_s[stringIndex].used;
+						found = true;
+						*next = l->state_next;
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	/** keyword must not be followed by one another significant chars **/
+	if (found) {
+
+		while (wcschr(p->significantChars.strContent, *(p->input.strContent + p->currentIndex))) {
+			++p->currentIndex;
+			found = false;
+		}
+
+	}
+
+	if (!found)
+		p->currentIndex = offIndex;
+
+	return found;
+
+}
+
+
 /**
  **  Search lookahead next state
  **/
@@ -686,11 +909,22 @@ bool process(myGirlParser* p, myString* s, void* object) {
     p->currentIndex = 0;
     int next;
     
-    while(p->currentIndex < p->input.used && !p->notAvalaible) {
+    while(p->currentIndex < p->input.used && !p->notAvailable) {
     
-        /** lookahead **/
+		/** Keywords **/
+		if (searchKeyword(p, p->currentState, &next)) {
+
+			/** changement d'état **/
+			p->currentState = next;
+			continue;
+
+		}
+
+		/** lookahead **/
         if (searchLookahead(p, p->currentState, p->input.strContent[p->currentIndex], &next)) {
             
+			/** avancer le pointeur (si je mange) **/
+			++p->currentIndex;
             /** changement d'état **/
             p->currentState = next;
             continue;
@@ -724,12 +958,13 @@ bool process(myGirlParser* p, myString* s, void* object) {
             
             if (p->state_end[endIndex] == p->currentState) {
                 
-                p->notAvalaible = true;
+                p->notAvailable = true;
                 
             }
             
         }
     }
 
-    return !p->notAvalaible;
+	return !p->notAvailable;
 }
+
