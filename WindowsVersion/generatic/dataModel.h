@@ -65,6 +65,7 @@ typedef struct {
     myString value;                 /** command value **/
 	wchar_t  byPass;				/** character bypass the common reference **/
     myCommandList parameters;       /** parameters **/
+	int currentParameter;			/** current parameter index **/
     bool (*execCommand)(myPtrModel, myPtrCommand);  /** function call to exec **/
 
 } myCommand;
@@ -149,7 +150,7 @@ extern myValueKey createValueKey(void);
 extern myCommand createCommand(void);
 extern mySession createSession(void);
 extern myModel createModel(void);
-extern myValueKeyList* writeValueKey(myValueKeyList*, myValueKey*);
+extern myValueKeyList* writeValueKey(myValueKeyList*, wchar_t*, wchar_t*);
 extern myCommandList* writeCommand(myCommandList*, myCommand*);
 extern myTabList* writeTab(myTabList*, unsigned int);
 extern mySessionList* writeSession(mySessionList*, mySession*);

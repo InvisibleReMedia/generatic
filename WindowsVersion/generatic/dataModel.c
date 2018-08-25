@@ -522,11 +522,10 @@ myModel createModel() {
 /**
  **   Ecrit dans la zone de mémoire
  **   indépendamment de la taille nécessaire
- **   Le contenu du pointeur fourni ne doit pas être supprimé
  **   myValueKeyList : zone de mémoire
- **   myValueKey : contenu à ajouter
+ **   name, value : contenu à ajouter
  **/
-myValueKeyList* writeValueKey(myValueKeyList* m, myValueKey* key) {
+myValueKeyList* writeValueKey(myValueKeyList* m, wchar_t* key, wchar_t* value) {
     
 
     if (m->used == 0) {
@@ -534,19 +533,25 @@ myValueKeyList* writeValueKey(myValueKeyList* m, myValueKey* key) {
         if (m->capacity < 2) {
             reallocValueKeyList(m, 2);
         }
-        m->element[m->used] = *key;
-        m->used = 1;
+        m->element[m->used] = createValueKey();
+		writeString(&m->element[m->used].name, key);
+		writeString(&m->element[m->used].value, value);
+		m->used = 1;
         
     } else if (m->used + 1 < m->capacity) {
         
-        m->element[m->used] = *key;
-        m->used += 1;
+		m->element[m->used] = createValueKey();
+		writeString(&m->element[m->used].name, key);
+		writeString(&m->element[m->used].value, value);
+		m->used += 1;
         
     } else {
         
         reallocValueKeyList(m, m->capacity + MINSIZE);
-        m->element[m->used] = *key;
-        m->used += 1;
+		m->element[m->used] = createValueKey();
+		writeString(&m->element[m->used].name, key);
+		writeString(&m->element[m->used].value, value);
+		m->used += 1;
         
     }
     

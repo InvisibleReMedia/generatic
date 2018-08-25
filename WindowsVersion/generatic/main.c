@@ -26,10 +26,6 @@
 #include "cmd.h"
 
 
-/** Elements globaux (constants) **/
-myCommandList builtInCommands;
-myModel model;
-
 
 /**
  **   Attend la saisie au clavier
@@ -62,7 +58,7 @@ void entry() {
                 writeString(&line, input);
                 
                 myCommand o = createCommand();
-                if (parseCommand(line, &o)) {
+				if (createParser(line, &o)) {
                     
                     if (searchCommand(&o, &builtInCommands)) {
                         
@@ -90,8 +86,8 @@ void entry() {
 
 int main(int argc, const char * argv[]) {
 
-    builtInCommands = install();
-    model = initialize();
+    install();
+    initialize();
     printf("generatic copyright @ 2018\n");
     printf("Automatic programming hobbie\n");
     printf("See help\n");

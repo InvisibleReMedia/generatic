@@ -80,7 +80,7 @@ myCSV* reallocLine(myCSV* la, unsigned int newCapacity) {
 /**
  **   Ecrit dans la liste
  **   indépendamment de la taille nécessaire
- **   Les données dans la liste ne doivent pas être détruites
+ **   Les données dans la liste fournie en paramètre ne doivent pas être détruites
  **   myCSV : list
  **   myList : object
  **/
@@ -140,11 +140,12 @@ void addColumn(myCSV* m) {
  **/
 void addLine(myCSV* m) {
     
-    writeCSVLine(m, &m->newLine);
-    m->newLine = createList(0);
-    clearString(&m->currentAttribut);
-    m->index = 0;
-
+	if (m->index == 3) {
+		writeCSVLine(m, &m->newLine);
+	}
+	m->newLine = createList(0);
+	clearString(&m->currentAttribut);
+	m->index = 0;
 }
 
 /**
@@ -240,7 +241,7 @@ bool ImportCommands(myCSV* src, myCommandList* dest) {
 
 	}
 
-
+	return true;
 }
 
 
@@ -369,15 +370,15 @@ myCSV csvLoader(char* fileName) {
     /** etat 1 : accepte , ou \n **/
     addLookahead(&g, setIntList(1, 1), 1, setCharList(1, L','), 1, 2);
     addLookahead(&g, setIntList(1, 1), 1, setCharList(1, L'\n'), 1, 3);
-    addAction(&g, setIntList(1, 1), 1, setActionList(1, funAddChar), 1);
+	addAction(&g, setIntList(1, 1), 1, setStringList(1, L"funAddChar"), setActionList(1, funAddChar), 1);
     
     /** etat 2 et 3 : automatic redirection **/
     addAutomaticMove(&g, setIntList(1, 2), 1, 1);
     addAutomaticMove(&g, setIntList(1, 3), 1, 4);
     /** etat 2 : add column **/
-    addAction(&g, setIntList(1, 2), 1, setActionList(1, funAddColumn), 1);
+	addAction(&g, setIntList(1, 2), 1, setStringList(1, L"funAddColumn"), setActionList(1, funAddColumn), 1);
     /** etat 3 : add line **/
-    addAction(&g, setIntList(1, 3), 1, setActionList(2, funAddColumn, funEndColumn), 2);
+	addAction(&g, setIntList(1, 3), 1, setStringList(2, L"funAddColumn", L"funEndColumn"), setActionList(2, funAddColumn, funEndColumn), 2);
     
     /** etat 4 : next line **/
     /** mange les espaces */
@@ -390,24 +391,24 @@ myCSV csvLoader(char* fileName) {
     addLookahead(&g, setIntList(1, 4), 1, setCharList(1, L'"'), 1, 6);
     
     /** etat 5 : next column **/
-    addAction(&g, setIntList(1, 5), 1, setActionList(1, funAddValue), 1);
+	addAction(&g, setIntList(1, 5), 1, setStringList(1, L"funAddValue"), setActionList(1, funAddValue), 1);
     addAutomaticMove(&g, setIntList(1, 5), 1, 4);
     
     /** etat 6 : start quoted column **/
-    addAction(&g, setIntList(1, 6), 1, setActionList(1, funAddChar), 1);
+	addAction(&g, setIntList(1, 6), 1, setStringList(1, L"funAddChar"), setActionList(1, funAddChar), 1);
     addLookahead(&g, setIntList(1, 6), 1, setCharList(1, L'\\'), 1, 7);
     addLookahead(&g, setIntList(1, 6), 1, setCharList(1, L'"'), 1, 4);
 
     /** etat 7 : escaped chars **/
     addAutomaticMove(&g, setIntList(1, 7), 1, 6);
-	addAction(&g, setIntList(1, 7), 1, setActionList(1, funAddEscapeChar), 1);
+	addAction(&g, setIntList(1, 7), 1, setStringList(1, L"funAddEscapeChar"), setActionList(1, funAddEscapeChar), 1);
     
     /** etat 10 : new line **/
-    addAction(&g, setIntList(1, 10), 1, setActionList(2, funAddValue, funNewLine), 2);
+	addAction(&g, setIntList(1, 10), 1, setStringList(2, L"funAddValue", "funNewLine"), setActionList(2, funAddValue, funNewLine), 2);
     addAutomaticMove(&g, setIntList(1, 10), 1, 4);
 
 	/** etat 11 : accepte , \n **/
-	addAction(&g, setIntList(1, 11), 1, setActionList(1, funAddChar), 1);
+	addAction(&g, setIntList(1, 11), 1, setStringList(1, L"funAddChar"), setActionList(1, funAddChar), 1);
 	addLookahead(&g, setIntList(1, 11), 1, setCharList(1, L','), 1, 5);
 	addLookahead(&g, setIntList(1, 11), 1, setCharList(1, L'\n'), 1, 10);
 

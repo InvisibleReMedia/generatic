@@ -13,6 +13,43 @@
 #ifndef girlParser_h
 #define girlParser_h
 
+
+/**
+ **  A context swap
+ **
+ **/
+typedef struct {
+
+	int* ints;
+	unsigned int capacity;
+	unsigned int used;
+} myContext;
+
+/**
+ **   A rule
+ **/
+typedef struct {
+
+	myString name;				/** rule name **/
+	int* states;				/** states **/
+	unsigned int countState;	/** count of states **/
+
+} myRule;
+
+/**
+ **   A rule list
+ **/
+typedef struct {
+
+	myRule*			list;		/** rules **/
+	unsigned int	used;		/** active rules **/
+	unsigned int	capacity;	/** container size **/
+
+} myRuleList;
+
+/**
+ **  Lookahead
+ **/
 typedef struct {
     
     int* state_for;             /** list of state for */
@@ -23,6 +60,9 @@ typedef struct {
 
 } myLookahead;
 
+/**
+ **  Lookahead list
+ **/
 typedef struct {
     
     myLookahead* list;
@@ -70,10 +110,11 @@ typedef bool (*action)(myPtrGirlParser, void*);
 
 typedef struct {
     
-    int*    states_at;              /** at these states **/
-    unsigned int countState;        /** count state **/
-    action*  functions;             /** call these fuctions **/
-    unsigned int countFunctions;    /** count functions **/
+    int*			states_at;              /** at these states **/
+	myString*		functionNames;			/** function names **/
+    unsigned int	countState;				/** count state **/
+    action*			functions;				/** call these fuctions **/
+    unsigned int	countFunctions;			/** count functions **/
     
 } myAction;
 
@@ -92,14 +133,23 @@ typedef struct {
     myLookaheadList lookaheads;         /** lookahead list **/
     myAutomaticMoveList autoMoves;      /** auto move list **/
     myActionList works;                 /** action list **/
-    int* state_end;                     /** states end **/
+	myRuleList rules;					/** rules **/
+	int* state_end;                     /** states end **/
     unsigned int countState;            /** count states **/
+
+	myRule currentRule;					/** current rule **/
+	myKeyword currentKeyword;           /** current keyword **/
+	myLookahead currentLook;			/** current lookahead **/
+	myAutomaticMove currentMove;		/** current auto move **/
+	myAction currentWork;               /** current action **/
+
     
     bool notAvailable;                  /** when current state at end **/
     int currentState;                   /** current state **/
     long currentIndex;                  /** current index of input **/
     myString input;                     /** current input **/
 	myString significantChars;			/** all significant chars (are characters in keyword) **/
+	myContext contexts;					/** push or pop context **/
     
 } myGirlParser;
 
@@ -107,26 +157,37 @@ typedef struct {
 extern int* setIntList(int, ...);
 extern wchar_t* setCharList(int, ...);
 extern action* setActionList(int, ...);
+extern myString* setStringList(int, ...);
 extern myGirlParser createGirlParser(int, int[], unsigned int, myString);
 extern bool process(myGirlParser*, myString*, void*);
 extern void addLookahead(myGirlParser*, int[], unsigned int, wchar_t[], unsigned int, int);
 extern void addKeyword(myGirlParser*, int[], unsigned int, myString[], unsigned int, int);
 extern void addAutomaticMove(myGirlParser*, int[], unsigned int, int);
-extern void addAction(myGirlParser*, int[], unsigned int, action[], unsigned int);
-extern void verifyGirlParser(myGirlParser*);
+extern void addAction(myGirlParser*, int[], unsigned int, myString*, action[], unsigned int);
+extern void addRule(myGirlParser*, int[], unsigned int, wchar_t*);
+
+extern myRuleList* writeRule(myRuleList*, myRule*);
+extern myRule createRule(int*, unsigned int, wchar_t*);
+extern myKeyword createKeyword(int*, unsigned int, myString*, unsigned int, int);
+extern void pushContext(myGirlParser*);
+extern int popContext(myGirlParser*);
 
 extern bool searchLookahead(myGirlParser*, int, wchar_t, int*);
+extern bool searchKeyword(myGirlParser* p, int, int*);
 extern bool searchAutomaticMove(myGirlParser*, int, int*);
-extern bool searchAction(myGirlParser*, int, action**, unsigned int*);
+extern bool searchAction(myGirlParser*, int, myString*, action**, unsigned int*);
+extern bool searchRule(myGirlParser*, int, myString*, action**, unsigned int*);
 extern void freeGirlParser(myGirlParser*);
 extern void freeLookahead(myLookahead*);
 extern void freeKeyword(myKeyword*);
+extern void freeRule(myRule*);
 extern void freeAutomaticMove(myAutomaticMove*);
 extern void freeAction(myAction*);
 extern void freeLookaheadList(myLookaheadList*);
 extern void freeKeywordList(myKeywordList*);
 extern void freeAutomaticMoveList(myAutomaticMoveList*);
 extern void freeActionList(myActionList*);
+extern void dumpGirlParser(myGirlParser*);
 
 
 #endif /* girlParser_h */

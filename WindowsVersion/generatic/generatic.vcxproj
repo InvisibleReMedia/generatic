@@ -77,10 +77,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="config\exParser.txt" />
+    <Text Include="config\interpret.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmd.h" />
+    <ClInclude Include="exInterpret.h" />
+    <ClInclude Include="exParser.h" />
     <ClInclude Include="csv-reader.h" />
     <ClInclude Include="dataModel.h" />
     <ClInclude Include="PowerShell\fileSystem.h" />
@@ -94,6 +98,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cmd.c" />
+    <ClCompile Include="exInterpret.c" />
+    <ClCompile Include="exParser.c" />
     <ClCompile Include="csv-reader.c" />
     <ClCompile Include="dataModel.c" />
     <ClCompile Include="PowerShell\fileSystem.c" />
@@ -109,25 +115,80 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config\CSV.csv" />
-    <None Include="config\languages.csv" />
-    <None Include="PowerShell\createDirectory.ps1" />
-    <None Include="PowerShell\createFile.ps1" />
-    <None Include="PowerShell\createOneDirectory.ps1" />
-    <None Include="PowerShell\deleteDir.ps1" />
-    <None Include="PowerShell\deleteFile.ps1" />
-    <None Include="PowerShell\readFile.ps1" />
-    <None Include="PowerShell\testDir.ps1" />
-    <None Include="PowerShell\testFile.ps1" />
-    <None Include="PowerShell\testPath.ps1" />
-    <None Include="Unix\createDirectory.sh" />
-    <None Include="Unix\createFile.sh" />
-    <None Include="Unix\deleteDir.sh" />
-    <None Include="Unix\deleteFile.sh" />
-    <None Include="Unix\readFile.sh" />
-    <None Include="Unix\testDir.sh" />
-    <None Include="Unix\testFile.sh" />
-    <None Include="Unix\testPath.sh" />
+    <None Include="config\CSV.csv">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="config\languages.csv">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="PowerShell\createDirectory.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\createFile.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\createOneDirectory.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\deleteDir.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\deleteFile.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\readFile.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\testDir.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\testFile.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="PowerShell\testPath.ps1">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\createDirectory.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\createFile.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\deleteDir.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\deleteFile.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\readFile.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\testDir.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\testFile.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
+    <None Include="Unix\testPath.sh">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Script</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

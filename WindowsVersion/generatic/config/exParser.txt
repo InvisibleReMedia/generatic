@@ -1,0 +1,22 @@
+; comments
+significantChars = "abcdefghiljklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+start state = 1
+end state = [5,6,7,10]
+
+; start
+name[1,2,3] = {
+	keywords = {
+		for ["one","two","three"] goto 5
+		for ["four","five","six"] goto 6
+	}
+	or lookaheads = {
+		for ['x','y','z'] goto "name"
+		for ['a','b','c'] goto 7
+	}
+	or actions = {
+		do ["functionName","functionName2","functionName3"]
+	}
+	and goto 10
+}
+
+...

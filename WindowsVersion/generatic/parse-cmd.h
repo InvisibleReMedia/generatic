@@ -14,5 +14,6 @@
 #define parse_cmd_h
 
 extern bool parseCommand(myString s, myCommand* result);
+extern bool createParser(myString, myCommand*);
 
 #endif /* parse_cmd_h */

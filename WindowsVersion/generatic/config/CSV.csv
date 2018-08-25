@@ -4,5 +4,5 @@ add, column, $previous $name
 new, line, \n
 add, value, $value
 add, value, $previous $value
-add, escape, "$value"
+add, escape, "\"$value\""
 

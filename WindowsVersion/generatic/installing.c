@@ -25,7 +25,11 @@
 #include "installing.h"
 
 
-static myCSV languages;
+/** Elements globaux (constants) **/
+myCSV languages;
+myCommandList builtInCommands;
+myModel model;
+
 
 /**
  **   Quit application
@@ -150,24 +154,35 @@ bool openReadOnlyProject(myPtrModel model, myPtrCommand cmd) {
  **/
 bool newFile(myPtrModel model, myPtrCommand cmd) {
     
-    myCommand* ptrCmd = (myCommand*)cmd;
 
-    if (ptrCmd->parameters.used == 2) {
-        
-        myString path = createString(MINSIZE);
-        myString file = createString(MINSIZE);
-        myCommand* p = ptrCmd->parameters.element;
-        writeString(&path, p[0].value.strContent);
-        writeString(&file, p[1].value.strContent);
-        
-        /** create directory if not exist **/
-        createFile(path.strContent, file.strContent);
-        
-        return true;
-    }
-    
-    wprintf(L"new file [path],[file] : manque path et/ou file\n");
-    return false;
+    myCommand* ptrCmd = (myCommand*)cmd;
+	myModel* ptrModel = (myModel*)model;
+
+	if (!ptrModel->currentSession->currentProject.isReadOnly) {
+
+		if (ptrCmd->parameters.used == 2) {
+
+			myString path = createString(MINSIZE);
+			myString file = createString(MINSIZE);
+			myCommand* p = ptrCmd->parameters.element;
+			writeString(&path, p[0].value.strContent);
+			writeString(&file, p[1].value.strContent);
+
+			/** create directory if not exist **/
+			createFile(path.strContent, file.strContent);
+
+			return true;
+		}
+
+		wprintf(L"new file [path],[file] : manque path et/ou file\n");
+		return false;
+
+	}
+	else {
+		wprintf(L"Project is read-only\n");
+		return false;
+	}
+
 }
 
 /**
@@ -179,36 +194,48 @@ bool newLanguageFile(myPtrModel model, myPtrCommand cmd) {
     myCommand* ptrCmd = (myCommand*)cmd;
     myModel* ptrModel = (myModel*)model;
 
-    if (ptrCmd->parameters.used == 3) {
-        
-        myString path = createString(MINSIZE);
-        myString file = createString(MINSIZE);
-        myString lan = createString(MINSIZE);
-        myCommand* p = ptrCmd->parameters.element;
-        writeString(&path, p[0].value.strContent);
-        writeString(&file, p[1].value.strContent);
-        writeString(&lan, p[2].value.strContent);
-        
-        /** create directory if not exist **/
-        createFile(path.strContent, file.strContent);
-        
-		/** search for the given language title **/
-		myString name;
-		if (searchLanguageName(lan.strContent, &name)) {
-			writeString(&ptrModel->currentSession->language, name.strContent);
+	if (!ptrModel->currentSession->currentProject.isReadOnly) {
 
-			/** automatically import commands **/
-			installLanguageCommands(ptrModel, ptrModel->currentSession->language);
+
+		if (ptrCmd->parameters.used == 3) {
+
+			myString path = createString(MINSIZE);
+			myString file = createString(MINSIZE);
+			myString lan = createString(MINSIZE);
+			myCommand* p = ptrCmd->parameters.element;
+			writeString(&path, p[0].value.strContent);
+			writeString(&file, p[1].value.strContent);
+			writeString(&lan, p[2].value.strContent);
+
+			/** create directory if not exist **/
+			createFile(path.strContent, file.strContent);
+
+			/** search for the given language title **/
+			myString name;
+			if (searchLanguageName(lan.strContent, &name)) {
+				writeString(&ptrModel->currentSession->language, name.strContent);
+
+				/** automatically import commands **/
+				installLanguageCommands(ptrModel, ptrModel->currentSession->language);
+				return true;
+			}
+			else
+				return false;
+
 			return true;
 		}
-		else
-			return false;
-        
-        return true;
-    }
-    
-    wprintf(L"new file [path],[file] : manque path et/ou file\n");
-    return false;
+
+		wprintf(L"new file [path],[file] : manque path et/ou file\n");
+		return false;
+
+	}
+	else {
+
+		wprintf(L"Project is read-only\n");
+		return false;
+
+	}
+
 }
 
 /**
@@ -218,23 +245,35 @@ bool newLanguageFile(myPtrModel model, myPtrCommand cmd) {
 bool deleteProjectFile(myPtrModel model, myPtrCommand cmd) {
     
     myCommand* ptrCmd = (myCommand*)cmd;
+	myModel* ptrModel = (myModel*)model;
     
-    if (ptrCmd->parameters.used == 2) {
-        
-        myString path = createString(MINSIZE);
-        myString file = createString(MINSIZE);
-        myCommand* p = ptrCmd->parameters.element;
-        writeString(&path, p[0].value.strContent);
-        writeString(&file, p[1].value.strContent);
-        
-        /** delete file if exist **/
-        deleteFile(path.strContent, file.strContent);
-        
-        return true;
-    }
-    
-    wprintf(L"delete file [path],[file] : manque path et/ou file\n");
-    return false;
+	if (!ptrModel->currentSession->currentProject.isReadOnly) {
+
+		if (ptrCmd->parameters.used == 2) {
+
+			myString path = createString(MINSIZE);
+			myString file = createString(MINSIZE);
+			myCommand* p = ptrCmd->parameters.element;
+			writeString(&path, p[0].value.strContent);
+			writeString(&file, p[1].value.strContent);
+
+			/** delete file if exist **/
+			deleteFile(path.strContent, file.strContent);
+
+			return true;
+		}
+
+		wprintf(L"delete file [path],[file] : manque path et/ou file\n");
+		return false;
+
+	}
+	else {
+
+		wprintf(L"Project is read-only\n");
+		return false;
+
+	}
+
 }
 
 /**
@@ -374,18 +413,16 @@ bool appendCode(myPtrModel model, myPtrCommand cmd) {
 /**
  **  Install commands
  **/
-myCommandList install() {
+void install() {
     
-    
-    myCommandList cmd;
-    
-    cmd = createCommandList(MINSIZE);
+        
+    builtInCommands = createCommandList(MINSIZE);
     
     // HELP command
     myCommand c = createCommand();
     writeString(&c.name, L"help");
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // NEW project, path, name
     c = createCommand();
@@ -402,7 +439,7 @@ myCommandList install() {
     
     c.execCommand = newProject;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // DELETE project, path, name
     c = createCommand();
@@ -419,7 +456,7 @@ myCommandList install() {
 
     c.execCommand = deleteProject;
 
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // OPEN project, path, name
     c = createCommand();
@@ -436,7 +473,7 @@ myCommandList install() {
 
     c.execCommand = openProject;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     // OPEN project, path, name, readonly
     c = createCommand();
@@ -456,7 +493,7 @@ myCommandList install() {
     
     c.execCommand = openReadOnlyProject;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
 
     // NEW file, path, name
@@ -474,7 +511,7 @@ myCommandList install() {
     
     c.execCommand = newFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // NEW file, path, name
     c = createCommand();
@@ -494,7 +531,7 @@ myCommandList install() {
 
     c.execCommand = newLanguageFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     // DELETE file, path, name
     c = createCommand();
@@ -511,7 +548,7 @@ myCommandList install() {
     
     c.execCommand = deleteProjectFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // OPEN file, path, name
     c = createCommand();
@@ -528,7 +565,7 @@ myCommandList install() {
     
     c.execCommand = openFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // OPEN file, path, name, readonly
     c = createCommand();
@@ -548,7 +585,7 @@ myCommandList install() {
     
     c.execCommand = openReadOnlyFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // SELECT language, name
     c = createCommand();
@@ -562,7 +599,7 @@ myCommandList install() {
 
     c.execCommand = selectLanguage;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     // READ file, path, name
     c = createCommand();
@@ -579,7 +616,7 @@ myCommandList install() {
 
     c.execCommand = readFile;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     // ADD code, content
     c = createCommand();
@@ -591,7 +628,7 @@ myCommandList install() {
     writeString(&cp.name, L"content");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     
     // ADD code, content
@@ -607,7 +644,7 @@ myCommandList install() {
     writeString(&cp.name, L"lineNumber");
     writeCommand(&c.parameters, &cp);
 
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // INSERT code, content
     c = createCommand();
@@ -622,7 +659,7 @@ myCommandList install() {
     writeString(&cp.name, L"lineNumber");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     
     // DELETE code, lineNumber
@@ -635,7 +672,7 @@ myCommandList install() {
     writeString(&cp.name, L"lineNumber");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // DELETE code, lineNumber, lineNumber
     c = createCommand();
@@ -650,7 +687,7 @@ myCommandList install() {
     writeString(&cp.name, L"lineNumber");
     writeCommand(&c.parameters, &cp);
 
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // NEW session, name
     c = createCommand();
@@ -662,7 +699,7 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // DELETE session, name
     c = createCommand();
@@ -674,7 +711,7 @@ myCommandList install() {
     writeString(&cp.name, L"name");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // SELECT session, name
     c = createCommand();
@@ -686,39 +723,38 @@ myCommandList install() {
     writeString(&cp.name, L"path");
     writeCommand(&c.parameters, &cp);
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
 
     // QUIT project
     c = createCommand();
     writeString(&c.name, L"quit");
     writeString(&c.option, L"project");
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // QUIT file
     c = createCommand();
     writeString(&c.name, L"quit");
     writeString(&c.option, L"file");
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
     // QUIT
     c = createCommand();
     writeString(&c.name, L"quit");
     c.execCommand = quit;
     
-    writeCommand(&cmd, &c);
+	writeCommand(&builtInCommands, &c);
     
-    return cmd;
 }
 
 
 /**
  **  Initialize the data model
  **/
-myModel initialize() {
+void initialize() {
     
-    return createModel();
+    model = createModel();
     
 }
 
@@ -748,7 +784,7 @@ void installLanguages() {
 
 }
 
-myCSV installLanguageCommands(myModel* m, myString value) {
+void installLanguageCommands(myModel* m, myString value) {
 
 	/** transforms a wchar_t into char **/
 	char f[256], v[256];

@@ -16,6 +16,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="config\exParser.txt" />
+    <Text Include="config\interpret.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmd.h">
@@ -43,6 +45,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PowerShell\fileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="exParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="exInterpret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -75,6 +83,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PowerShell\fileSystem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exParser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exInterpret.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

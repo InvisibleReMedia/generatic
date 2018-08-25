@@ -65,6 +65,7 @@ wchar_t* setCharList(int z, ...) {
     return listChar;
 }
 
+
 /**
  **   Set a list of actions
  **/
@@ -92,19 +93,24 @@ action* setActionList(int z, ...) {
  **   Set a list of string
  **/
 static myString* listString = NULL;
+static int listStringSize = 0;
 myString* setStringList(int z, ...) {
     
     va_list(strings);
 	va_start(strings, z);
-	if (listString != NULL)
+	if (listString != NULL) {
+
+		for (int index = 0; index < listStringSize; ++index)
+			freeString(&listString[index]);
 		free(listString);
+	}
 	listString = (myString*)malloc((z + 1) * sizeof(myString));
     
     for(int index = 0; index < z; ++index) {
         
-		myString arg = va_arg(strings, myString);
-		listString[index] = createString(arg.used);
-		writeString(&listString[index], arg.strContent);
+		wchar_t* arg = va_arg(strings, wchar_t*);
+		listString[index] = createString(wcslen(arg));
+		writeString(&listString[index], arg);
         
     }
     
@@ -138,6 +144,32 @@ myLookaheadList createLookaheadList(unsigned int capacity) {
     }
     
 }
+
+/**
+**   Crée une liste limitée
+**   capacity : capacité maximum
+**/
+myContext createContext(unsigned int capacity) {
+
+
+	myContext m;
+	m.ints = (int*)malloc(sizeof(int) * (capacity + 1));
+	if (m.ints != NULL) {
+
+		m.capacity = capacity;
+		m.used = 0;
+		memset(m.ints, 0, sizeof(int));
+		return m;
+
+	}
+	else {
+
+		perror("Erreur dans createContext : ");
+		exit(EXIT_FAILURE);
+	}
+
+}
+
 
 /**
  **   Crée une liste limitée
@@ -212,6 +244,33 @@ myActionList createActionList(unsigned int capacity) {
 }
 
 
+/**
+**   Crée une liste limitée
+**   capacity : capacité maximum
+**/
+myRuleList createRuleList(unsigned int capacity) {
+
+
+	myRuleList m;
+	m.list = (myRule*)malloc(sizeof(myRule) * (capacity + 1));
+	if (m.list != NULL) {
+
+		m.capacity = capacity;
+		m.used = 0;
+		memset(m.list, 0, sizeof(myRule));
+		return m;
+
+	}
+	else {
+
+		perror("Erreur dans createRuleList : ");
+		exit(EXIT_FAILURE);
+	}
+
+}
+
+
+
 /**  
  **  Libère la mémoire
  **  myLookaheadList : data
@@ -232,6 +291,37 @@ void freeLookaheadList(myLookaheadList* p) {
 	p->used = 0;
 
 }
+
+
+/**
+**  Libère la mémoire
+**  myRuleList : data
+**/
+void freeRuleList(myRuleList* p) {
+
+	myRule* current = p->list;
+
+	int index;
+	for (index = 0; index < p->used; ++index, ++current) {
+
+		freeRule(current);
+
+	}
+
+	free(p->list);
+	p->capacity = 0;
+	p->used = 0;
+
+}
+
+void freeContext(myContext* p) {
+
+	free(p->ints);
+	p->used = 0;
+	p->capacity = 0;
+	p->ints = NULL;
+}
+
 
 /**
  **  Libère la mémoire
@@ -315,6 +405,8 @@ myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds, mySt
     p.keywords = createKeywordList(0);
     p.autoMoves = createAutomaticMoveList(0);
     p.works = createActionList(0);
+	p.rules = createRuleList(0);
+	p.contexts = createContext(0);
     
     p.currentState = start;
     p.input = createString(0);
@@ -337,6 +429,7 @@ void freeGirlParser(myGirlParser* p) {
 	freeKeywordList(&p->keywords);
 	freeAutomaticMoveList(&p->autoMoves);
 	freeActionList(&p->works);
+	freeRuleList(&p->rules);
 
 	freeString(&p->input);
 	freeString(&p->significantChars);
@@ -362,6 +455,77 @@ myLookahead createLookahead(int* states_for, unsigned int countFor, wchar_t* cha
     
     return h;
     
+}
+
+
+/**
+**  Realloc context list
+**
+**/
+myContext* reallocContext(myContext* la, unsigned int newCapacity) {
+
+	int* newAlloc = (int*)realloc(la->ints, sizeof(int) * (newCapacity + 1));
+	if (newAlloc != NULL) {
+
+		la->ints = newAlloc;
+		la->capacity = newCapacity;
+		return la;
+
+	}
+	else {
+
+		perror("Erreur dans reallocContext");
+		exit(EXIT_FAILURE);
+
+	}
+
+}
+
+
+void pushContext(myGirlParser* p) {
+
+	if (p->contexts.used == 0) {
+
+		if (p->contexts.capacity < 2) {
+			reallocContext(&p->contexts, 2);
+		}
+		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(int));
+		p->contexts.used = 1;
+
+	}
+	else if (p->contexts.used + 1 < p->contexts.capacity) {
+
+		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(int));
+		p->contexts.used += 1;
+
+	}
+	else {
+
+		reallocContext(&p->contexts, p->contexts.capacity + MINSIZE);
+		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(myKeyword));
+		p->contexts.used += 1;
+
+	}
+
+}
+
+int popContext(myGirlParser* p) {
+
+
+	int val;
+	if (p->contexts.used > 0) {
+
+		val = p->contexts.ints[p->contexts.used - 1];
+		for (int index = 1; index < p->contexts.used; ++index) {
+			p->contexts.ints[index - 1] = p->contexts.ints[index];
+		}
+		--p->contexts.used;
+		p->currentState = val;
+		return val;
+	} else {
+		wprintf(L"no context available\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 /**
@@ -402,6 +566,20 @@ void freeLookahead(myLookahead* p) {
 
 }
 
+
+/**
+ **  Libère la mémoire
+ **  myRule : data
+**/
+void freeRule(myRule* p) {
+
+	free(p->states);
+	p->countState = 0;
+	freeString(&p->name);
+
+}
+
+
 /**
 **  Libère la mémoire
 **  myKeyword : data
@@ -440,10 +618,15 @@ void freeAction(myAction* p) {
 
 	free(p->states_at);
 	free(p->functions);
+	for (int index = 0; index < p->countFunctions; ++index) {
+		freeString(&p->functionNames[index]);
+	}
+	free(p->functionNames);
 	p->countState = 0;
 	p->countFunctions = 0;
 	p->states_at = NULL;
 	p->functions = NULL;
+	p->functionNames = NULL;
 
 }
 
@@ -494,6 +677,25 @@ void addLookahead(myGirlParser* girl, int* states_for, unsigned int countFor, wc
     
 }
 
+
+/**
+**  Create a rule
+**
+**/
+myRule createRule(int* states_for, unsigned int countFor, wchar_t* name) {
+
+	myRule h;
+
+	h.states = (int*)malloc(sizeof(int) * countFor);
+	h.countState = countFor;
+	memcpy(h.states, states_for, countFor * sizeof(int));
+	h.name = createString(MINSIZE);
+	writeString(&h.name, name);
+
+	return h;
+
+}
+
 /**
  **  Create a keyword
  **
@@ -520,26 +722,51 @@ myKeyword createKeyword(int* states_for, unsigned int countFor, myString* sList,
 }
 
 /**
- **  Realloc keyword list
+ **  Realloc rule list
  **
  **/
-myKeywordList* reallocKeyword(myKeywordList* la, unsigned int newCapacity) {
+myRuleList* reallocRule(myRuleList* la, unsigned int newCapacity) {
     
-    myKeyword* newAlloc = (myKeyword*)realloc(la->keys, sizeof(myKeyword) * (newCapacity + 1));
+	myRule* newAlloc = (myRule*)realloc(la->list, sizeof(myRule) * (newCapacity + 1));
     if (newAlloc != NULL) {
         
-        la->keys = newAlloc;
+        la->list = newAlloc;
         la->capacity = newCapacity;
         return la;
         
     } else {
         
-        perror("Erreur dans reallocKeyword");
+        perror("Erreur dans reallocRule");
         exit(EXIT_FAILURE);
         
     }
     
 }
+
+/**
+**  Realloc keyword list
+**
+**/
+myKeywordList* reallocKeyword(myKeywordList* la, unsigned int newCapacity) {
+
+	myKeyword* newAlloc = (myKeyword*)realloc(la->keys, sizeof(myKeyword) * (newCapacity + 1));
+	if (newAlloc != NULL) {
+
+		la->keys = newAlloc;
+		la->capacity = newCapacity;
+		return la;
+
+	}
+	else {
+
+		perror("Erreur dans reallocKeyword");
+		exit(EXIT_FAILURE);
+
+	}
+
+}
+
+
 
 /**
  **   Ecrit dans la liste
@@ -576,6 +803,44 @@ myKeywordList* writeKeyword(myKeywordList* m, myKeyword* la) {
 
 
 /**
+**   Ecrit dans la liste
+**   indépendamment de la taille nécessaire
+**   myKeywordList : list
+**   myKeyword : object
+**/
+myRuleList* writeRule(myRuleList* m, myRule* la) {
+
+	if (m->used == 0) {
+
+		if (m->capacity < 2) {
+			reallocRule(m, 2);
+		}
+		memcpy(&m->list[m->used], la, sizeof(myRule));
+		m->used = 1;
+
+	}
+	else if (m->used + 1 < m->capacity) {
+
+		memcpy(&m->list[m->used], la, sizeof(myRule));
+		m->used += 1;
+
+	}
+	else {
+
+		reallocRule(m, m->capacity + MINSIZE);
+		memcpy(&m->list[m->used], la, sizeof(myRule));
+		m->used += 1;
+
+	}
+
+	return m;
+
+}
+
+
+
+
+/**
  **   Add keyword
  **
  **/
@@ -584,6 +849,17 @@ void addKeyword(myGirlParser* girl, int* states_for, unsigned int countFor, mySt
     myKeyword h = createKeyword(states_for, countFor, strList, countString, next);
     writeKeyword(&girl->keywords, &h);
     
+}
+
+/**
+**   Add rule
+**
+**/
+void addRule(myGirlParser* girl, int* states_for, unsigned int countFor, wchar_t* name) {
+
+	myRule h = createRule(states_for, countFor, name);
+	writeRule(&girl->rules, &h);
+
 }
 
 
@@ -677,7 +953,7 @@ void addAutomaticMove(myGirlParser* girl, int* states_from, unsigned int countFr
  **  Create an action
  **
  **/
-myAction createAction(int* states_at, unsigned int countAt, action* f, unsigned int countF) {
+myAction createAction(int* states_at, unsigned int countAt, myString* s, action* f, unsigned int countF) {
     
     myAction h;
     
@@ -686,10 +962,13 @@ myAction createAction(int* states_at, unsigned int countAt, action* f, unsigned 
     memcpy(h.states_at, states_at, countAt * sizeof(int));
     h.functions = (action*)malloc(sizeof(action) * countF);
     h.countFunctions = countF;
-    for(int index = 0; index < countF; ++index) {
+	h.functionNames = (myString*)malloc(sizeof(myString) * countF);
+	for (int index = 0; index < countF; ++index) {
         
         h.functions[index] = f[index];
-        
+		h.functionNames[index] = createString(s[index].used);
+		writeString(&h.functionNames[index], s[index].strContent);
+
     }
 
     return h;
@@ -756,9 +1035,9 @@ myActionList* writeAction(myActionList* m, myAction* la) {
  **   Add action
  **
  **/
-void addAction(myGirlParser* girl, int* states_at, unsigned int countAt, action* f, unsigned int countF) {
+void addAction(myGirlParser* girl, int* states_at, unsigned int countAt, myString* s, action* f, unsigned int countF) {
     
-    myAction h = createAction(states_at, countAt, f, countF);
+    myAction h = createAction(states_at, countAt, s, f, countF);
     writeAction(&girl->works, &h);
     
 }
@@ -873,7 +1152,7 @@ bool searchAutomaticMove(myGirlParser* p, int state, int* next) {
 /**
  **  Search actions and execute them
  **/
-bool searchAction(myGirlParser* p, int state, action** f, unsigned int* countFunctions) {
+bool searchAction(myGirlParser* p, int state, myString* textfunction, action** f, unsigned int* countFunctions) {
     
     bool found = false;
     for(int index = 0; index < p->works.used && !found; ++index) {
@@ -889,6 +1168,7 @@ bool searchAction(myGirlParser* p, int state, action** f, unsigned int* countFun
                 for(int index = 0; index < *countFunctions; ++index) {
                     
                     (*f)[index] = l->functions[index];
+					writeString(textfunction, l->functionNames[index].strContent);
                     
                 }
 
@@ -911,15 +1191,6 @@ bool process(myGirlParser* p, myString* s, void* object) {
     
     while(p->currentIndex < p->input.used && !p->notAvailable) {
     
-		/** Keywords **/
-		if (searchKeyword(p, p->currentState, &next)) {
-
-			/** changement d'état **/
-			p->currentState = next;
-			continue;
-
-		}
-
 		/** lookahead **/
         if (searchLookahead(p, p->currentState, p->input.strContent[p->currentIndex], &next)) {
             
@@ -931,10 +1202,20 @@ bool process(myGirlParser* p, myString* s, void* object) {
             
         }
     
-        /** launch actions **/
+		/** Keywords **/
+		if (searchKeyword(p, p->currentState, &next)) {
+
+			/** changement d'état **/
+			p->currentState = next;
+			continue;
+
+		}
+
+		/** launch actions **/
         action* a = NULL;
         unsigned int count;
-        if (searchAction(p, p->currentState, &a, &count)) {
+		myString snf = createString(0);
+        if (searchAction(p, p->currentState, &snf, &a, &count)) {
             
             action* current = a;
             for(int countF = 0; countF < count; ++countF, ++current) {
@@ -944,6 +1225,7 @@ bool process(myGirlParser* p, myString* s, void* object) {
             }
             free(a);
         }
+		freeString(&snf);
 
         /** automatic moves **/
         if (searchAutomaticMove(p, p->currentState, &next)) {
@@ -967,4 +1249,102 @@ bool process(myGirlParser* p, myString* s, void* object) {
 
 	return !p->notAvailable;
 }
+
+
+/**
+**
+**  Dump lookahead definition
+**/
+void dumpLookahead(myLookahead* p) {
+
+	wprintf(L"  For state = [");
+	for (int index = 0; index < p->countState; ++index) {
+
+		if (index > 0)
+			wprintf(L",");
+		wprintf(L"%d", p->state_for[index]);
+	}
+	wprintf(L"]\n");
+	wprintf(L"  Lookaheads = [");
+	for (int index = 0; index < p->countChars; ++index) {
+
+		if (index > 0)
+			wprintf(L",");
+		wprintf(L"%lc", p->if_c[index]);
+
+	}
+	wprintf(L"]\n");
+	wprintf(L"  Next state = %d\n", p->state_next);
+}
+
+
+/**
+**
+**  Dump keyword definition
+**/
+void dumpKeyword(myKeyword* p) {
+
+	wprintf(L"  For state = [");
+	for (int index = 0; index < p->countState; ++index) {
+
+		if (index > 0)
+			wprintf(L",");
+		wprintf(L"%d", p->state_for[index]);
+	}
+	wprintf(L"]\n");
+	wprintf(L"  Keywords = [");
+	for (int index = 0; index < p->countStrings; ++index) {
+
+		if (index > 0)
+			wprintf(L",");
+		wprintf(L"%ls", p->if_s[index].strContent);
+
+	}
+	wprintf(L"]\n");
+	wprintf(L"  Next state = %d\n", p->state_next);
+}
+
+
+/**
+ **
+ **  Dump girl parser definition
+ **/
+void dumpGirlParser(myGirlParser* p) {
+
+
+	wprintf(L"Start state = %d\n", p->state_start);
+	wprintf(L"End state = [");
+	for (int index = 0; index < p->countState; ++index) {
+
+		if (index > 0)
+			wprintf(L",");
+		wprintf(L"%d", p->state_end[index]);
+	}
+	wprintf(L"]\n");
+	wprintf("Current state = %d\n", p->currentState);
+	wprintf("Current input = '%ls'\n", p->input.strContent);
+	wprintf("Current position into input = '%d'\n", p->currentIndex);
+
+	wprintf(L"List(keyword) = {\n");
+	for (int index = 0; index < p->keywords.used; ++index) {
+
+		if (index > 0)
+			wprintf(L",\n");
+		dumpKeyword(&p->keywords.keys[index]);
+
+	}
+	wprintf(L"}\n");
+
+	wprintf(L"List(lookahead) = {\n");
+	for (int index = 0; index < p->lookaheads.used; ++index) {
+
+		if (index > 0)
+			wprintf(L",\n");
+		dumpLookahead(&p->lookaheads.list[index]);
+
+	}
+	wprintf(L"}\n");
+}
+
+
 

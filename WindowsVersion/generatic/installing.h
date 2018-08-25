@@ -14,13 +14,14 @@
 #ifndef installing_h
 #define installing_h
 
-extern myCSV  languages;
-extern myCSV* languagesCommand;
+extern myCSV languages;
+extern myCommandList builtInCommands;
+extern myModel model;
 
-extern myCommandList install(void);
-extern myModel initialize(void);
+extern void install(void);
+extern void initialize(void);
 extern void installLanguages(void);
-extern myCSV installLanguageCommands(myModel*, myString);
+extern void installLanguageCommands(myModel*, myString);
 extern bool searchLanguageName(wchar_t*, myString*);
 
 #endif /* installing_h */

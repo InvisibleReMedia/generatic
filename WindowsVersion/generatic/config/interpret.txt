@@ -1,0 +1,8 @@
+
+surround([/
+		loop(
+			or(type([0-9]+/int)/
+			surround("/type(*/string)/"))
+			/,)
+		/])
+
