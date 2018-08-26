@@ -22,6 +22,8 @@
 #include "installing.h"
 #include "parse-cmd.h"
 #include <stdarg.h>
+#include "Unix/fileSystem.h"
+#include "exInterpret.h"
 #include "girlParser.h"
 
 /**
@@ -146,10 +148,11 @@ bool funAddName(myPtrGirlParser a, void* b) {
 	myCommand* ptrCmd = (myCommand*)b;
 
 	wchar_t copy[2];
-	copy[0] = ptrParser->input.strContent[ptrParser->currentIndex];
+    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    copy[0] = ptrParser->reader->line.strContent[ptrParser->reader->pos];
 	copy[1] = L'\0';
 	writeString(&ptrCmd->name, copy);
-	++ptrParser->currentIndex;
+    ++ptrParser->reader->pos;
 
 	return true;
 
@@ -165,10 +168,11 @@ bool funAddOption(myPtrGirlParser a, void* b) {
 	myCommand* ptrCmd = (myCommand*)b;
 
 	wchar_t copy[2];
-	copy[0] = ptrParser->input.strContent[ptrParser->currentIndex];
+    if (!yieldnRead(ptrParser->reader, 1)) return false;
+	copy[0] = ptrParser->reader->line.strContent[ptrParser->reader->pos];
 	copy[1] = L'\0';
 	writeString(&ptrCmd->option, copy);
-	++ptrParser->currentIndex;
+    ++ptrParser->reader->pos;
 
 	return true;
 }
@@ -196,11 +200,12 @@ bool funAddParameter(myPtrGirlParser a, void* b) {
 	myGirlParser* ptrParser = (myGirlParser*)a;
 	myCommand* ptrCmd = (myCommand*)b;
 
+    if (!yieldnRead(ptrParser->reader, 1)) return false;
 	++ptrCmd->currentParameter;
 	if (ptrCmd->currentParameter == ptrCmd->parameters.used) {
 
 		/** fin de l'analyse **/
-		if (ptrParser->currentIndex + 1 == ptrParser->input.used)
+		if (ptrParser->reader->pos + 1 == ptrParser->reader->line.used)
 			ptrParser->currentState = 2;
 		else
 		{
@@ -212,7 +217,7 @@ bool funAddParameter(myPtrGirlParser a, void* b) {
 	else {
 
 		/** caractère , **/
-		if (!ptrParser->input.strContent[ptrParser->currentIndex] == L',')
+		if (!(ptrParser->reader->line.strContent[ptrParser->reader->pos] == L','))
 		{
 			wprintf(L"funAddParameter error : number of parameters too short");
 			exit(EXIT_FAILURE);
@@ -301,21 +306,21 @@ bool funCreateSubParser(myPtrGirlParser a, void* b) {
 
 		/** draws a sequence example for this command **/
 		/** if sequence has not been registered into parser, add it now **/
-		ptrParser->currentIndex = 0;
-		clearString(&ptrParser->input);
-		writeString(&ptrParser->input, ptrCmd->name.strContent);
-		writeString(&ptrParser->input, L" ");
-		writeString(&ptrParser->input, ptrCmd->option.strContent);
-		writeString(&ptrParser->input, L" ");
+		ptrParser->reader->pos = 0;
+		clearString(&ptrParser->reader->line);
+		writeString(&ptrParser->reader->line, ptrCmd->name.strContent);
+		writeString(&ptrParser->reader->line, L" ");
+		writeString(&ptrParser->reader->line, ptrCmd->option.strContent);
+		writeString(&ptrParser->reader->line, L" ");
 
-		wprintf(ptrParser->input.strContent);
+		wprintf(ptrParser->reader->line.strContent);
 
 		myCommand* pr = (myCommand*)ptrCmd->parameters.element;
 		for (int indexParam = 0; indexParam < ptrCmd->parameters.used; ++indexParam) {
 
 			if (indexParam > 0)
-				writeString(&ptrParser->input, L",");
-			writeString(&ptrParser->input, pr[indexParam].name.strContent);
+				writeString(&ptrParser->reader->line, L",");
+			writeString(&ptrParser->reader->line, pr[indexParam].name.strContent);
 
 		}
 
@@ -334,7 +339,7 @@ bool funCreateSubParser(myPtrGirlParser a, void* b) {
 
 	myCommand result = createCommand();
 	myString source = createString(0);
-	writeString(&source, currentParser->input.strContent + currentParser->currentIndex);
+	writeString(&source, currentParser->reader->line.strContent + currentParser->reader->pos);
 	if (process(&g, &source, &result)) {
 
 		wchar_t s[256];
@@ -367,25 +372,26 @@ bool createParser(myString input, myCommand* result) {
 
 		/** draws a sequence example for this command **/
 		/** if sequence has not been registered into parser, add it now **/
-		ptrParser->currentIndex = 0;
-		clearString(&ptrParser->input);
-		writeString(&ptrParser->input, ptrCmd->name.strContent);
-		writeString(&ptrParser->input, L" ");
-		writeString(&ptrParser->input, ptrCmd->option.strContent);
-		writeString(&ptrParser->input, L" ");
+        /** draws a sequence example for this command **/
+        /** if sequence has not been registered into parser, add it now **/
+        ptrParser->reader->pos = 0;
+        clearString(&ptrParser->reader->line);
+        writeString(&ptrParser->reader->line, ptrCmd->name.strContent);
+        writeString(&ptrParser->reader->line, L" ");
+        writeString(&ptrParser->reader->line, ptrCmd->option.strContent);
+        writeString(&ptrParser->reader->line, L" ");
 
-		wprintf(ptrParser->input.strContent);
+		wprintf(ptrParser->reader->line.strContent);
 
 		myCommand* pr = (myCommand*)ptrCmd->parameters.element;
 		for (int indexParam = 0; indexParam < ptrCmd->parameters.used; ++indexParam) {
 
 			if (indexParam > 0)
-				writeString(&ptrParser->input, L",");
-			writeString(&ptrParser->input, pr[indexParam].name.strContent);
+				writeString(&ptrParser->reader->line, L",");
+			writeString(&ptrParser->reader->line, pr[indexParam].name.strContent);
 
 		}
 
-		current = 1;
 		current = 1;
 		if (ptrCmd->option.used > 0) {
 			addKeywordName(ptrParser, ptrCmd->name, current, &maxCurrent, &next);

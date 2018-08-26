@@ -17,7 +17,10 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "library-strings.h"
+#include "dataModel.h"
+#include "Unix/fileSystem.h"
 #include <stdarg.h>
+#include "exInterpret.h"
 #include "girlParser.h"
 
 
@@ -88,6 +91,27 @@ action* setActionList(int z, ...) {
     return listAction;
 }
 
+/**
+ **   Set a list of functional
+ **/
+static interpret* listFunctional = NULL;
+interpret* setFunctionalList(int z, ...) {
+    
+    va_list(functions);
+    va_start(functions, z);
+    if (listFunctional != NULL)
+        free(listFunctional);
+    listFunctional = (interpret*)malloc((z+1) * sizeof(interpret));
+    
+    for(int index = 0; index < z; ++index) {
+        
+        listFunctional[index] = va_arg(functions, interpret);
+        
+    }
+    
+    va_end(functions);
+    return listFunctional;
+}
 
 /**
  **   Set a list of string
@@ -109,7 +133,7 @@ myString* setStringList(int z, ...) {
     for(int index = 0; index < z; ++index) {
         
 		wchar_t* arg = va_arg(strings, wchar_t*);
-		listString[index] = createString(wcslen(arg));
+		listString[index] = createString((unsigned int)wcslen(arg));
 		writeString(&listString[index], arg);
         
     }
@@ -144,6 +168,31 @@ myLookaheadList createLookaheadList(unsigned int capacity) {
     }
     
 }
+
+/**
+ **   Crée une liste limitée
+ **   capacity : capacité maximum
+ **/
+myFunctionalList createFunctionalList(unsigned int capacity) {
+    
+    
+    myFunctionalList m;
+    m.funs = (myFunctional*)malloc(sizeof(myFunctional) * (capacity + 1));
+    if (m.funs != NULL) {
+        
+        m.capacity = capacity;
+        m.used = 0;
+        memset(m.funs, 0, sizeof(myFunctional));
+        return m;
+        
+    } else {
+        
+        perror("Erreur dans createFunctionalList : ");
+        exit(EXIT_FAILURE);
+    }
+    
+}
+
 
 /**
 **   Crée une liste limitée
@@ -409,7 +458,6 @@ myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds, mySt
 	p.contexts = createContext(0);
     
     p.currentState = start;
-    p.input = createString(0);
 	p.significantChars = createString(significantChars.used);
 	writeString(&p.significantChars, significantChars.strContent);
 
@@ -431,7 +479,6 @@ void freeGirlParser(myGirlParser* p) {
 	freeActionList(&p->works);
 	freeRuleList(&p->rules);
 
-	freeString(&p->input);
 	freeString(&p->significantChars);
 
 	memset(p, 0, sizeof(myGirlParser));
@@ -489,20 +536,20 @@ void pushContext(myGirlParser* p) {
 		if (p->contexts.capacity < 2) {
 			reallocContext(&p->contexts, 2);
 		}
-		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(int));
+		memcpy(&p->contexts.ints[p->contexts.used], &p->currentState, sizeof(int));
 		p->contexts.used = 1;
 
 	}
 	else if (p->contexts.used + 1 < p->contexts.capacity) {
 
-		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(int));
+		memcpy(&p->contexts.ints[p->contexts.used], &p->currentState, sizeof(int));
 		p->contexts.used += 1;
 
 	}
 	else {
 
 		reallocContext(&p->contexts, p->contexts.capacity + MINSIZE);
-		memcpy(&p->contexts.ints[p->contexts.used], p->currentState, sizeof(myKeyword));
+		memcpy(&p->contexts.ints[p->contexts.used], &p->currentState, sizeof(myKeyword));
 		p->contexts.used += 1;
 
 	}
@@ -1042,6 +1089,99 @@ void addAction(myGirlParser* girl, int* states_at, unsigned int countAt, myStrin
     
 }
 
+/**
+ **  Create a functional parser
+ **
+ **/
+myFunctional createFunctional(int* states_at, unsigned int countAt, myString* s, interpret* f, unsigned int countF) {
+    
+    myFunctional h;
+    
+    h.states_at = (int*)malloc(sizeof(int) * countAt);
+    h.countState = countAt;
+    memcpy(h.states_at, states_at, countAt * sizeof(int));
+    h.functionals = (interpret*)malloc(sizeof(interpret) * countF);
+    h.countFunctions = countF;
+    h.functionNames = (myString*)malloc(sizeof(myString) * countF);
+    for (int index = 0; index < countF; ++index) {
+        
+        h.functionals[index] = f[index];
+        h.functionNames[index] = createString(s[index].used);
+        writeString(&h.functionNames[index], s[index].strContent);
+        
+    }
+    
+    return h;
+    
+}
+
+/**
+ **  Realloc functional list
+ **
+ **/
+myFunctionalList* reallocFunctional(myFunctionalList* la, unsigned int newCapacity) {
+    
+    myFunctional* newAlloc = (myFunctional*)realloc(la->funs, sizeof(myFunctional) * (newCapacity + 1));
+    if (newAlloc != NULL) {
+        
+        la->funs = newAlloc;
+        la->capacity = newCapacity;
+        return la;
+        
+    } else {
+        
+        perror("Erreur dans reallocFunctional");
+        exit(EXIT_FAILURE);
+        
+    }
+    
+}
+
+/**
+ **   Ecrit dans la liste
+ **   indépendamment de la taille nécessaire
+ **   myFunctionalList : list
+ **   myFunctional : object
+ **/
+myFunctionalList* writeFunctional(myFunctionalList* m, myFunctional* la) {
+    
+    if (m->used == 0) {
+        
+        if (m->capacity < 2) {
+            reallocFunctional(m, 2);
+        }
+        memcpy(&m->funs[m->used], la, sizeof(myFunctional));
+        m->used = 1;
+        
+    } else if (m->used + 1 < m->capacity) {
+        
+        memcpy(&m->funs[m->used], la, sizeof(myFunctional));
+        m->used += 1;
+        
+    } else {
+        
+        reallocFunctional(m, m->capacity + MINSIZE);
+        memcpy(&m->funs[m->used], la, sizeof(myFunctional));
+        m->used += 1;
+        
+    }
+    
+    return m;
+    
+}
+
+
+/**
+ **   Add functional
+ **
+ **/
+void addFunctional(myGirlParser* girl, int* states_at, unsigned int countAt, myString* s, interpret* f, unsigned int countF) {
+    
+    myFunctional h = createFunctional(states_at, countAt, s, f, countF);
+    writeFunctional(&girl->functionals, &h);
+    
+}
+
 
 /**
  **   Search a keyword
@@ -1050,7 +1190,7 @@ void addAction(myGirlParser* girl, int* states_at, unsigned int countAt, myStrin
 bool searchKeyword(myGirlParser* p, int state, int* next) {
 
 	bool found = false;
-	int offIndex = p->currentIndex;
+	unsigned int offIndex = p->reader->pos;
 	for (int index = 0; index < p->keywords.used && !found; ++index) {
 
 		myKeyword* l = &p->keywords.keys[index];
@@ -1060,8 +1200,9 @@ bool searchKeyword(myGirlParser* p, int state, int* next) {
 
 				for (int stringIndex = 0; stringIndex < l->countStrings && !found; ++stringIndex) {
 
-					if (wcsncmp(l->if_s[stringIndex].strContent, p->input.strContent + p->currentIndex, l->if_s[stringIndex].used) == 0) {
-						p->currentIndex += l->if_s[stringIndex].used;
+                    if (!yieldnReadInMemory(p->reader, l->if_s[stringIndex].used)) return false;
+					if (wcsncmp(p->reader->line.strContent + p->reader->pos, l->if_s[stringIndex].strContent, l->if_s[stringIndex].used) == 0) {
+						p->reader->pos += l->if_s[stringIndex].used;
 						found = true;
 						*next = l->state_next;
 					}
@@ -1077,15 +1218,16 @@ bool searchKeyword(myGirlParser* p, int state, int* next) {
 	/** keyword must not be followed by one another significant chars **/
 	if (found) {
 
-		while (wcschr(p->significantChars.strContent, *(p->input.strContent + p->currentIndex))) {
-			++p->currentIndex;
+        if (!yieldnReadInMemory(p->reader, 1)) return false;
+		while (found && wcschr(p->significantChars.strContent, *(p->reader->line.strContent + p->reader->pos))) {
+            ++p->reader->pos;
 			found = false;
 		}
 
 	}
 
 	if (!found)
-		p->currentIndex = offIndex;
+        p->reader->pos = offIndex;
 
 	return found;
 
@@ -1107,6 +1249,7 @@ bool searchLookahead(myGirlParser* p, int state, wchar_t c, int* next) {
                 
                 for(int charIndex = 0; charIndex < l->countChars && !found; ++charIndex) {
                     
+                    if (!yieldnRead(p->reader, 1)) return false;
                     if (l->if_c[charIndex] == c) {
                         found = true;
                         *next = l->state_next;
@@ -1181,21 +1324,136 @@ bool searchAction(myGirlParser* p, int state, myString* textfunction, action** f
     
 }
 
+/**
+ **  Search functionals and execute them
+ **/
+bool searchFunctional(myGirlParser* p, int state, myString* textfunction, interpret** f, unsigned int* countFunctions) {
+    
+    bool found = false;
+    for(int index = 0; index < p->functionals.used && !found; ++index) {
+        
+        myFunctional* l = &p->functionals.funs[index];
+        for(int stateIndex = 0; stateIndex < l->countState && !found; ++stateIndex) {
+            
+            if (l->states_at[stateIndex] == state) {
+                
+                found = true;
+                *f = (interpret*)malloc(sizeof(interpret) * l->countFunctions);
+                *countFunctions = l->countFunctions;
+                for(int index = 0; index < *countFunctions; ++index) {
+                    
+                    (*f)[index] = l->functionals[index];
+                    if (index > 0)
+                        writeString(textfunction, L",");
+                    writeString(textfunction, l->functionNames[index].strContent);
+                    
+                }
+                
+            }
+        }
+        
+    }
+    
+    return found;
+    
+}
+
+bool yieldprocess(myGirlParser* p, void* object) {
+    
+    int next;
+    
+    while(yieldRead(p->reader) && !p->notAvailable) {
+
+        /** functional **/
+        interpret* u = NULL;
+        unsigned int ucount;
+        myString usnf = createString(0);
+        if (searchFunctional(p, p->currentState, &usnf, &u, &ucount)) {
+            
+            interpret* ucurrent = u;
+            for(int ucountF = 0; ucountF < ucount; ++ucountF, ++ucurrent) {
+                
+                createExInterpret(p->reader, *ucurrent);
+                
+            }
+            free(u);
+
+        }
+        freeString(&usnf);
+
+        
+        /** lookahead **/
+        if (!yieldnRead(p->reader, 1)) break;
+        if (searchLookahead(p, p->currentState, *(p->reader->line.strContent + p->reader->pos), &next)) {
+            
+            /** avancer le pointeur (si je mange) **/
+            ++p->reader->pos;
+            /** changement d'état **/
+            p->currentState = next;
+            continue;
+            
+        }
+        
+        /** Keywords **/
+        if (searchKeyword(p, p->currentState, &next)) {
+            
+            /** changement d'état **/
+            p->currentState = next;
+            continue;
+            
+        }
+        
+        /** launch actions **/
+        action* a = NULL;
+        unsigned int count;
+        myString snf = createString(0);
+        if (searchAction(p, p->currentState, &snf, &a, &count)) {
+            
+            action* current = a;
+            for(int countF = 0; countF < count; ++countF, ++current) {
+                
+                (*current)(p, object);
+                
+            }
+            free(a);
+        }
+        freeString(&snf);
+        
+        /** automatic moves **/
+        if (searchAutomaticMove(p, p->currentState, &next)) {
+            
+            /** changement d'état **/
+            p->currentState = next;
+            continue;
+            
+        }
+        
+        for(int endIndex = 0; endIndex < p->countState; ++endIndex) {
+            
+            if (p->state_end[endIndex] == p->currentState) {
+                
+                p->notAvailable = true;
+                
+            }
+            
+        }
+    }
+    
+    return !p->notAvailable;
+}
+
 
 bool process(myGirlParser* p, myString* s, void* object) {
 
-    clearString(&p->input);
-    writeString(&p->input, s->strContent);
-    p->currentIndex = 0;
     int next;
     
-    while(p->currentIndex < p->input.used && !p->notAvailable) {
+    while(p->reader->pos < p->reader->line.used && !p->notAvailable) {
     
 		/** lookahead **/
-        if (searchLookahead(p, p->currentState, p->input.strContent[p->currentIndex], &next)) {
+        if (searchLookahead(p, p->currentState, p->reader->line.strContent[p->reader->pos], &next)) {
             
 			/** avancer le pointeur (si je mange) **/
-			++p->currentIndex;
+			++p->reader->pos;
             /** changement d'état **/
             p->currentState = next;
             continue;
@@ -1321,9 +1579,9 @@ void dumpGirlParser(myGirlParser* p) {
 		wprintf(L"%d", p->state_end[index]);
 	}
 	wprintf(L"]\n");
-	wprintf("Current state = %d\n", p->currentState);
-	wprintf("Current input = '%ls'\n", p->input.strContent);
-	wprintf("Current position into input = '%d'\n", p->currentIndex);
+	wprintf(L"Current state = %d\n", p->currentState);
+	wprintf(L"Current input = '%ls'\n", p->reader->line.strContent);
+	wprintf(L"Current position into input = '%d'\n", p->reader->pos);
 
 	wprintf(L"List(keyword) = {\n");
 	for (int index = 0; index < p->keywords.used; ++index) {

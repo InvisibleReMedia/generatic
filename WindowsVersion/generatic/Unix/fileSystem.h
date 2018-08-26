@@ -21,7 +21,21 @@ extern void printFile(wchar_t*,wchar_t*);
 extern void eraseFile(char*);
 typedef bool (*writePart)(myString*);
 typedef bool (*readPart)(myString*, void*, void*);
+
+typedef struct {
+    
+    FILE*          file;
+    myString       line;
+    unsigned int   pos;
+    
+} myYieldReadPart;
+typedef bool (*yieldReadPart)(myYieldReadPart*);
+
 extern void writeFile(char*, writePart);
 extern void readFromFile(char*, readPart, void*, void*);
+extern void yieldReadFromFile(char*, yieldReadPart, void*, void*);
+extern bool yieldnReadInMemory(myYieldReadPart*, unsigned int);
+extern bool yieldnRead(myYieldReadPart*, unsigned int);
+extern bool yieldRead(myYieldReadPart*);
 
 #endif /* fileSystem_h */

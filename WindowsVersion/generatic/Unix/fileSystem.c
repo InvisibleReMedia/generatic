@@ -562,6 +562,145 @@ void writeFile(char *destfName, writePart f) {
     
 }
 
+/**
+ **  Read a maximum of n chars
+ **/
+bool yieldnRead(myYieldReadPart* y, unsigned int n) {
+    
+    if (y->pos + n < y->line.used) {
+        
+        return true;
+        
+    } else {
+        
+        if (!feof(y->file)) {
+            
+            bool end;
+            wchar_t input[2];
+            input[1] = L'\0';
+
+            if (y->pos >= y->line.used) {
+                y->pos = 0;
+                clearString(&y->line);
+            }
+
+            do {
+                end = feof(y->file);
+                if (!end) {
+                    input[0] = nonDosFormat(y->file);
+                    writeString(&y->line, input);
+                }
+                
+            } while(!end && y->pos + n < y->line.used);
+            
+            if (end) {
+                /** ajoute une indication de fin de fichier **/
+                input[0] = L'\xFE';
+                writeString(&y->line, input);
+            }
+            
+            return true;
+            
+        }
+        else
+            return false;
+        
+    }
+
+
+}
+
+
+
+/**
+ **  Read a maximum of n chars and keeps in memory
+ **/
+bool yieldnReadInMemory(myYieldReadPart* y, unsigned int n) {
+    
+    if (y->pos + n < y->line.used) {
+        
+        return true;
+        
+    } else {
+        
+        if (!feof(y->file)) {
+            
+            bool end;
+            wchar_t input[2];
+            input[1] = L'\0';
+            
+            do {
+                end = feof(y->file);
+                if (!end) {
+                    input[0] = nonDosFormat(y->file);
+                    writeString(&y->line, input);
+                }
+                
+            } while(!end && y->pos + n < y->line.used);
+            
+            if (end) {
+                /** ajoute une indication de fin de fichier **/
+                input[0] = L'\xFE';
+                writeString(&y->line, input);
+            }
+            
+            return true;
+            
+        }
+        else
+            return false;
+        
+    }
+    
+    
+}
+
+
+/**
+ **  Read file
+ **/
+bool yieldRead(myYieldReadPart* y) {
+    
+    return yieldnRead(y, 128);
+    
+    
+}
+
+/**
+ **   Lit depuis un fichier
+ **   strfName      : nom du fichier
+ **   yieldreadPart : function callback
+ **   grammar       : for grammar parser
+ **   object        : gather data
+ **/
+void yieldReadFromFile(char* strfName, yieldReadPart y, void* grammar, void* object) {
+    
+    FILE* readFile = NULL;
+    
+    myYieldReadPart r;
+    r.file = readFile;
+    r.line = createString(128);
+    r.pos = 0;
+
+    if ((readFile = fopen(strfName, "r")) != NULL) {
+        
+        bool result;
+        
+        do {
+
+            result = y(&r);
+            
+        } while(!feof(readFile) && result);
+        
+        fclose(readFile);
+        
+    } else {
+        
+        perror("Lecture du fichier en erreur :");
+    }
+    
+}
+
 
 /**
  **   Lit depuis un fichier

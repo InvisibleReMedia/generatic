@@ -13,15 +13,15 @@
 #ifndef exInterpret_h
 #define exInterpret_h
 
-typedef bool(*interpret)(myString, unsigned int, myValueKeyList*);
-extern myValueKeyList createExInterpret(myString, interpret);
-extern bool expression(myString, unsigned int, myString, myValueKeyList*);
-bool expression(myString, unsigned int, int, myValueKeyList*);
-bool expression(myString, unsigned int, wchar_t, wchar_t, myValueKeyList*);
-bool type(myString, unsigned int, interpret, myString, myValueKeyList*);
-bool or(myString, unsigned int, interpret, interpret, myValueKeyList*);
-bool loop(myString, unsigned int, myString, interpret, myString, myString, myValueKeyList*);
-bool surround(myString, unsigned int, myString, interpret, myString, myValueKeyList*);
+typedef bool(*interpret)(myYieldReadPart*, myValueKeyList*);
+extern myValueKeyList createExInterpret(myYieldReadPart*, interpret);
+extern bool expression_cmp(myYieldReadPart*, myString, myValueKeyList*);
+bool expression_size(myYieldReadPart*, int, myValueKeyList*);
+bool expression_ident(myYieldReadPart*, wchar_t, wchar_t, myValueKeyList*);
+bool type(myYieldReadPart*, interpret, myString, myValueKeyList*);
+bool or(myYieldReadPart*, interpret, interpret, myValueKeyList*);
+bool loop(myYieldReadPart*, myString, interpret, myString, myString, myValueKeyList*);
+bool surround(myYieldReadPart*, myString, interpret, myString, myValueKeyList*);
 
 
 #endif /* exInterpret_h */

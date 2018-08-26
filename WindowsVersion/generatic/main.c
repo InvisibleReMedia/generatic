@@ -19,11 +19,15 @@
 #include "library-strings.h"
 #include "dataModel.h"
 #include <stdarg.h>
+#include "Unix/fileSystem.h"
+#include "exInterpret.h"
 #include "girlParser.h"
 #include "csv-reader.h"
 #include "installing.h"
 #include "parse-cmd.h"
 #include "cmd.h"
+#include "exParser.h"
+
 
 
 
@@ -93,7 +97,8 @@ int main(int argc, const char * argv[]) {
     printf("See help\n");
     
 	installLanguages();
-    
+
+    loadExParserFromFile("config/exParser.txt");
     entry();
     
     freeCommandList(&builtInCommands);

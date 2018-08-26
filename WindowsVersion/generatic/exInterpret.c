@@ -19,19 +19,25 @@
 #include "library-strings.h"
 #include "dataModel.h"
 #include <stdarg.h>
-#include "girlParser.h"
+#include "Unix/fileSystem.h"
 #include "exInterpret.h"
+#include "girlParser.h"
 
 
 
-bool surround(myString input, unsigned int current, myString left, interpret f, myString right, myValueKeyList* l) {
+/**
+ **  Surround a sequence by left and right
+ **/
+bool surround(myYieldReadPart* y, myString left, interpret f, myString right, myValueKeyList* l) {
 
 	bool c = true;
-	if (wcsncmp(input.strContent + current, left.strContent, left.used) == 0) {
-		++current;
-		c &= f(input, current, l);
-		if (wcsncmp(input.strContent + current, left.strContent, left.used) == 0) {
-			++current;
+    if (!yieldnRead(y, left.used)) return false;
+	if (wcsncmp(y->line.strContent + y->pos, left.strContent, left.used) == 0) {
+        y->pos += left.used;
+		c &= f(y, l);
+        if (!yieldnRead(y, right.used)) return false;
+		if (wcsncmp(y->line.strContent + y->pos, right.strContent, right.used) == 0) {
+            y->pos += right.used;
 			return true;
 		}
 		else
@@ -41,83 +47,120 @@ bool surround(myString input, unsigned int current, myString left, interpret f, 
 		return false;
 }
 
-bool loop(myString input, unsigned int current, myString left, interpret f, myString interval, myString right, myValueKeyList* l) {
+/**
+ **  Repeat a sequence; start and end
+ **/
+bool loop(myYieldReadPart* y, myString left, interpret f, myString interval, myString right, myValueKeyList* l) {
 
-	bool c = true;
+	bool c = false;
 	int index = 0;
-	if (wcsncmp(input.strContent + current, left.strContent, left.used) == 0) {
-		++current;
+    
+    if (!yieldnRead(y, left.used)) return false;
+	if (wcsncmp(y->line.strContent + y->pos, left.strContent, left.used) == 0) {
+        y->pos += left.used;
+        c = true;
 		do {
-			if (index > 0 && wcsncmp(input.strContent + current, interval.strContent, interval.used) == 0) {
-				++current;
+            if (!yieldnRead(y, interval.used)) return false;
+			if (index > 0 && wcsncmp(y->line.strContent + y->pos, interval.strContent, interval.used) == 0) {
+                y->pos += interval.used;
 			}
-			c &= f(input, current, l);
-			if (wcsncmp(input.strContent + current, right.strContent, right.used) == 0) {
-				++current;
+			c &= f(y, l);
+            if (!yieldnRead(y, right.used)) return false;
+			if (wcsncmp(y->line.strContent + y->pos, right.strContent, right.used) == 0) {
+                y->pos += right.used;
 				break;
 			}
 			else
 				++index;
 		} while (true);
 	}
-	else
-		return false;
+    
+    return c;
 }
 
 
-bool or(myString input, unsigned int current, interpret left, interpret right, myValueKeyList* l) {
+/**
+ **   Or function : do one of them
+ **
+ **/
+bool or(myYieldReadPart* y, interpret left, interpret right, myValueKeyList* l) {
 
-	return left(input, current, l) || right(input, current, l);
+	return left(y, l) || right(y, l);
 }
 
-bool type(myString input, unsigned int current, interpret f, myString typeName, myValueKeyList* l) {
+/**
+ **   selection type
+ **/
+bool type(myYieldReadPart* y, interpret f, myString typeName, myValueKeyList* l) {
 
 	writeValueKey(l, typeName.strContent, L"");
-	return f(input, current, l);
+	return f(y, l);
 }
 
-bool expression_ident(myString input, unsigned int current, wchar_t from, wchar_t to, myValueKeyList* l) {
+/**
+ **  expression [from-to]*
+ **/
+bool expression_ident(myYieldReadPart* y, wchar_t from, wchar_t to, myValueKeyList* l) {
 
-	while (input.strContent[current] >= from && input.strContent[current] < to) {
+    if (!yieldnRead(y, 1)) return false;
+    while (y->line.strContent[y->pos] >= from && y->line.strContent[y->pos] < to) {
 
 		wchar_t c[2];
 
-		c[0] = input.strContent[current];
+		c[0] = y->line.strContent[y->pos];
 		c[1] = L'\0';
 		writeString(&l->element[l->used - 1].value, c);
-		++current;
+        ++y->pos;
+        if (!yieldnRead(y, 1)) return false;
 	}
 	return true;
 
 }
 
-bool expression_size(myString input, unsigned int current, int count, myValueKeyList* l) {
+/**
+ **    count any number of elements
+ **/
+bool expression_size(myYieldReadPart* y, int count, myValueKeyList* l) {
 
 	for (int counter = 0; counter < count; ++counter) {
 
 		wchar_t c[2];
 
-		c[0] = input.strContent[current];
+        if (!yieldnRead(y, 1)) return false;
+		c[0] = y->line.strContent[y->pos];
 		c[1] = L'\0';
 		writeString(&l->element[l->used - 1].value, c);
-		++current;
+        ++y->pos;
 
 	}
+    
+    return true;
 
 }
 
-bool expression_cmp(myString input, unsigned int current, myString test, myValueKeyList* l) {
+/**
+ **    Compare an expression with a test string
+ **/
+bool expression_cmp(myYieldReadPart* y, myString test, myValueKeyList* l) {
 
-	return wcsncmp(input.strContent + current, test.strContent, test.used) == 0;
+    if (!yieldnRead(y, test.used)) return false;
+	return wcsncmp(y->line.strContent + y->pos, test.strContent, test.used) == 0;
 
 }
 
 
-myValueKeyList createExInterpret(myString input, interpret f) {
+/**
+ **  create an exInterpreter
+ **  it is a sequence of nested functions calls that returns a list of name/value elements found
+ **  to select a name for any value, use type() function
+ **/
+myValueKeyList createExInterpret(myYieldReadPart* y, interpret f) {
 
 	myValueKeyList list = createValueKeyList(0);
 
-	f(input, 0, &list);
+	f(y, &list);
 	return list;
 
 }
+
+

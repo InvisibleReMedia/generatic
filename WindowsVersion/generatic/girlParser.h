@@ -128,6 +128,25 @@ typedef struct {
 
 typedef struct {
     
+    int*            states_at;              /** at these states **/
+    myString*       functionNames;          /** function names **/
+    unsigned int    countState;             /** count state **/
+    interpret*      functionals;            /** call these fuctions **/
+    unsigned int    countFunctions;         /** count functions **/
+
+} myFunctional;
+
+typedef struct {
+    
+    myFunctional*   funs;          /** functional functions **/
+    unsigned int    used;          /** used counter **/
+    unsigned int    capacity;      /** allocated size **/
+    
+} myFunctionalList;
+
+typedef struct {
+    
+    myYieldReadPart* reader;            /** file reader **/
     int state_start;                    /** start state **/
     myKeywordList keywords;             /** keyword list **/
     myLookaheadList lookaheads;         /** lookahead list **/
@@ -146,10 +165,9 @@ typedef struct {
     
     bool notAvailable;                  /** when current state at end **/
     int currentState;                   /** current state **/
-    long currentIndex;                  /** current index of input **/
-    myString input;                     /** current input **/
 	myString significantChars;			/** all significant chars (are characters in keyword) **/
 	myContext contexts;					/** push or pop context **/
+    myFunctionalList functionals;       /** a functional parser **/
     
 } myGirlParser;
 
@@ -160,6 +178,7 @@ extern action* setActionList(int, ...);
 extern myString* setStringList(int, ...);
 extern myGirlParser createGirlParser(int, int[], unsigned int, myString);
 extern bool process(myGirlParser*, myString*, void*);
+extern bool yieldprocess(myGirlParser*, void*);
 extern void addLookahead(myGirlParser*, int[], unsigned int, wchar_t[], unsigned int, int);
 extern void addKeyword(myGirlParser*, int[], unsigned int, myString[], unsigned int, int);
 extern void addAutomaticMove(myGirlParser*, int[], unsigned int, int);

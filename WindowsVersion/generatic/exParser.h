@@ -13,5 +13,7 @@
 #ifndef exParser_h
 #define exParser_h
 
+extern myGirlParser loadExParserFromFile(char* fileName);
+
 
 #endif /* exParser_h */

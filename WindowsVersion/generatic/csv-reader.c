@@ -19,8 +19,9 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
-#include "PowerShell/fileSystem.h"
+#include "Unix/fileSystem.h"
 #include <stdarg.h>
+#include "exInterpret.h"
 #include "girlParser.h"
 #include "csv-reader.h"
 
@@ -36,7 +37,7 @@ myCSV createCSV(unsigned int capacity, wchar_t* name) {
     m.lines = (myList*)malloc(sizeof(myList) * (capacity + 1));
     if (m.lines != NULL) {
         
-		m.fileName = createString(wcslen(name));
+		m.fileName = createString((unsigned int)wcslen(name));
 		writeString(&m.fileName, name);
         m.capacity = capacity;
         m.used = 0;
@@ -248,10 +249,9 @@ bool ImportCommands(myCSV* src, myCommandList* dest) {
 /**
  **  Function for parse
  **/
-bool CsvReader(myString* input, void* a, void* b) {
+bool CsvReader(myYieldReadPart* p, void* b) {
     
-    
-    return process(a, input, b);
+    return yieldprocess(p, b);
     
 }
 
@@ -261,9 +261,10 @@ bool funAddChar(myPtrGirlParser a, void* b) {
     myCSV* csv = (myCSV*)b;
     wchar_t input[2];
     input[1] = L'\0';
-    input[0] = p->input.strContent[p->currentIndex];
+    if (!yieldnRead(p->reader, 1)) return false;
+    input[0] = p->reader->line.strContent[p->reader->pos];
     writeString(&csv->currentAttribut, input);
-    ++p->currentIndex;
+    ++p->reader->pos;
     return true;
 }
 
@@ -272,31 +273,30 @@ bool funAddEscapeChar(myPtrGirlParser a, void* b) {
 	myGirlParser* p = (myGirlParser*)a;
 	myCSV* csv = (myCSV*)b;
 	wchar_t input[3];
-	if (p->input.strContent[p->currentIndex] == L'\\' || p->input.strContent[p->currentIndex] == L'"') {
-		input[0] = p->input.strContent[p->currentIndex];
+    if (!yieldnRead(p->reader, 1)) return false;
+	if (p->reader->line.strContent[p->reader->pos] == L'\\' || p->reader->line.strContent[p->reader->pos] == L'"') {
+		input[0] = p->reader->line.strContent[p->reader->pos];
 		input[1] = L'\0';
 		input[2] = L'\0';
 	}
 	else {
 		input[0] = L'\\';
-		input[1] = p->input.strContent[p->currentIndex];
+		input[1] = p->reader->line.strContent[p->reader->pos];
 		input[2] = L'\0';
 	}
 	writeString(&csv->currentAttribut, input);
-	++p->currentIndex;
+    ++p->reader->pos;
 	return true;
 }
 
 bool funAddColumn(myPtrGirlParser a, void* b) {
     
-    myGirlParser* p = (myGirlParser*)a;
     addColumn(b);
     return true;
 }
 
 bool funAddValue(myPtrGirlParser a, void* b) {
     
-    myGirlParser* p = (myGirlParser*)a;
     addAttribute(b);
     return true;
     
@@ -305,14 +305,12 @@ bool funAddValue(myPtrGirlParser a, void* b) {
 
 bool funNewLine(myPtrGirlParser a, void* b) {
     
-    myGirlParser* p = (myGirlParser*)a;
     addLine(b);
     return true;
 }
 
 bool funEndColumn(myPtrGirlParser a, void* b) {
     
-    myGirlParser* p = (myGirlParser*)a;
     endColumn(b);
     return true;
 }
@@ -352,7 +350,7 @@ myCSV csvLoader(char* fileName) {
     
 	/** transforms a char into wchar_t **/
 	wchar_t f[256];
-	int len = strlen(fileName);
+	int len = (unsigned int)strlen(fileName);
 	assert(len < 254);
 	for (int index = 0; index < len; ++index) {
 		f[index] = (wchar_t)fileName[index];
@@ -413,7 +411,7 @@ myCSV csvLoader(char* fileName) {
 	addLookahead(&g, setIntList(1, 11), 1, setCharList(1, L'\n'), 1, 10);
 
     myCSV m = createCSV(MINSIZE, f);
-	readFromFile(fileName, CsvReader, &g, &m);
+	yieldReadFromFile(fileName, CsvReader, &g, &m);
     
 	freeGirlParser(&g);
 

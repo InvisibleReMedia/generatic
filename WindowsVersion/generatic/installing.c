@@ -18,8 +18,9 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
-#include "PowerShell/fileSystem.h"
+#include "Unix/fileSystem.h"
 #include <stdarg.h>
+#include "exInterpret.h"
 #include "girlParser.h"
 #include "csv-reader.h"
 #include "installing.h"
