@@ -565,33 +565,35 @@ void writeFile(char *destfName, writePart f) {
 /**
  **  Read a maximum of n chars
  **/
-bool yieldnRead(myYieldReadPart* y, unsigned int n) {
+bool yieldnRead(myYieldReadPart* y, unsigned int n, bool keepInMemory) {
     
     if (y->pos + n < y->line.used) {
-        
         return true;
-        
+    } else if (y->pos < y->line.used) {
+        return true;
     } else {
-        
-        if (!feof(y->file)) {
-            
-            bool end;
+        bool end = feof(y->file);
+        if (y->file == NULL || end)
+            return false;
+        else {
+
             wchar_t input[2];
             input[1] = L'\0';
-
-            if (y->pos >= y->line.used) {
+            
+            if (!keepInMemory && y->pos >= y->line.used) {
                 y->pos = 0;
                 clearString(&y->line);
             }
 
             do {
-                end = feof(y->file);
+                
                 if (!end) {
                     input[0] = nonDosFormat(y->file);
                     writeString(&y->line, input);
+                    end = feof(y->file);
                 }
                 
-            } while(!end && y->pos + n < y->line.used);
+            } while(!end && --n > 0);
             
             if (end) {
                 /** ajoute une indication de fin de fichier **/
@@ -600,13 +602,8 @@ bool yieldnRead(myYieldReadPart* y, unsigned int n) {
             }
             
             return true;
-            
         }
-        else
-            return false;
-        
     }
-
 
 }
 
@@ -617,41 +614,13 @@ bool yieldnRead(myYieldReadPart* y, unsigned int n) {
  **/
 bool yieldnReadInMemory(myYieldReadPart* y, unsigned int n) {
     
-    if (y->pos + n < y->line.used) {
-        
-        return true;
-        
-    } else {
-        
-        if (!feof(y->file)) {
-            
-            bool end;
-            wchar_t input[2];
-            input[1] = L'\0';
-            
-            do {
-                end = feof(y->file);
-                if (!end) {
-                    input[0] = nonDosFormat(y->file);
-                    writeString(&y->line, input);
-                }
-                
-            } while(!end && y->pos + n < y->line.used);
-            
-            if (end) {
-                /** ajoute une indication de fin de fichier **/
-                input[0] = L'\xFE';
-                writeString(&y->line, input);
-            }
-            
-            return true;
-            
-        }
-        else
-            return false;
-        
-    }
+    return yieldnRead(y, n, true);
     
+}
+
+bool yieldnReadOut(myYieldReadPart* y, unsigned int n) {
+    
+    return yieldnRead(y, n, false);
     
 }
 
@@ -661,7 +630,7 @@ bool yieldnReadInMemory(myYieldReadPart* y, unsigned int n) {
  **/
 bool yieldRead(myYieldReadPart* y) {
     
-    return yieldnRead(y, 128);
+    return yieldnRead(y, 128, false);
     
     
 }
@@ -677,18 +646,18 @@ void yieldReadFromFile(char* strfName, yieldReadPart y, void* grammar, void* obj
     
     FILE* readFile = NULL;
     
-    myYieldReadPart r;
-    r.file = readFile;
-    r.line = createString(128);
-    r.pos = 0;
 
     if ((readFile = fopen(strfName, "r")) != NULL) {
         
         bool result;
-        
+        myYieldReadPart r;
+        r.file = readFile;
+        r.line = createString(128);
+        r.pos = 0;
+
         do {
 
-            result = y(&r);
+            result = y(&r, grammar, object);
             
         } while(!feof(readFile) && result);
         

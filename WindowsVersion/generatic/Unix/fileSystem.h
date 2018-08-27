@@ -29,13 +29,14 @@ typedef struct {
     unsigned int   pos;
     
 } myYieldReadPart;
-typedef bool (*yieldReadPart)(myYieldReadPart*);
+typedef bool (*yieldReadPart)(myYieldReadPart*, void*, void*);
 
 extern void writeFile(char*, writePart);
 extern void readFromFile(char*, readPart, void*, void*);
 extern void yieldReadFromFile(char*, yieldReadPart, void*, void*);
 extern bool yieldnReadInMemory(myYieldReadPart*, unsigned int);
-extern bool yieldnRead(myYieldReadPart*, unsigned int);
+extern bool yieldnRead(myYieldReadPart*, unsigned int, bool);
+extern bool yieldnReadOut(myYieldReadPart*, unsigned int);
 extern bool yieldRead(myYieldReadPart*);
 
 #endif /* fileSystem_h */

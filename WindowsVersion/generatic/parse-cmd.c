@@ -148,7 +148,7 @@ bool funAddName(myPtrGirlParser a, void* b) {
 	myCommand* ptrCmd = (myCommand*)b;
 
 	wchar_t copy[2];
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    if (!yieldnReadOut(ptrParser->reader, 1)) return false;
     copy[0] = ptrParser->reader->line.strContent[ptrParser->reader->pos];
 	copy[1] = L'\0';
 	writeString(&ptrCmd->name, copy);
@@ -168,7 +168,7 @@ bool funAddOption(myPtrGirlParser a, void* b) {
 	myCommand* ptrCmd = (myCommand*)b;
 
 	wchar_t copy[2];
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    if (!yieldnReadOut(ptrParser->reader, 1)) return false;
 	copy[0] = ptrParser->reader->line.strContent[ptrParser->reader->pos];
 	copy[1] = L'\0';
 	writeString(&ptrCmd->option, copy);
@@ -200,29 +200,23 @@ bool funAddParameter(myPtrGirlParser a, void* b) {
 	myGirlParser* ptrParser = (myGirlParser*)a;
 	myCommand* ptrCmd = (myCommand*)b;
 
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
-	++ptrCmd->currentParameter;
-	if (ptrCmd->currentParameter == ptrCmd->parameters.used) {
-
-		/** fin de l'analyse **/
-		if (ptrParser->reader->pos + 1 == ptrParser->reader->line.used)
-			ptrParser->currentState = 2;
-		else
-		{
-			wprintf(L"funAddParameter error : number of parameters too long");
-			exit(EXIT_FAILURE);
-		}
-
-	}
-	else {
-
-		/** caractère , **/
-		if (!(ptrParser->reader->line.strContent[ptrParser->reader->pos] == L','))
-		{
-			wprintf(L"funAddParameter error : number of parameters too short");
-			exit(EXIT_FAILURE);
-		}
-	}
+    for(int index = 0; index < ptrCmd->parameters.used; ++index) {
+        
+        pushContext(ptrParser, 1);
+        myCommand newCommand = createCommand();
+        if (!yieldprocess(ptrParser, &newCommand)) {
+            return false;
+        }
+        else {
+            
+            wchar_t s[256];
+            swprintf(s, 255, L"%ls %ls \n", newCommand.name.strContent, newCommand.option.strContent);
+            wprintf(s);
+            popContext(ptrParser);
+            
+        }
+        
+    }
 
 	return true;
 }
@@ -257,12 +251,16 @@ void addKeywordName2(myGirlParser* p, myString keyword, int c, int *max, int* ne
 	if (!searchKeyword(p, c, next)) {
 
 		addKeyword(p, setIntList(1, c), 1, setStringList(1, keyword.strContent), 1, 2);
-	}
+        addAutomaticMove(p, setIntList(1, c), 1, 2);
+        
+    } else {
+        
+        addAutomaticMove(p, setIntList(1, next), 1, 2);
+
+    }
 
 }
 
-
-bool funCreateSubParser(myPtrGirlParser a, void* b);
 /**
  **
  **   add second keyword
@@ -273,84 +271,10 @@ void addKeywordOption(myGirlParser* p, myString keyword, int c, int *max, int* n
 
 		++(*max);
 		addKeyword(p, setIntList(1, c), 1, setStringList(1, keyword.strContent), 1, *max);
-		/** register any word **/
-		addAction(p, setIntList(1, *max), 1, setStringList(3, L"funInitParameter", L"funCreateSubParser", L"funAddParameter"), setActionList(3, funInitParameter, funCreateSubParser, funAddParameter), 3);
+        addLookahead(p, setIntList(1, *max), 1, setCharList(2, L' ', L'\t'), 2, *max);
+        addAction(p, setIntList(1, *max), 1, setStringList(1, L"funAddParameter"), setActionList(1, funAddParameter), 1);
 	}
 
-}
-
-
-/**
- **
- **  create sub Parser
- **/
-bool funCreateSubParser(myPtrGirlParser a, void* b) {
-
-	myGirlParser* currentParser = (myGirlParser*)a;
-	myCommand* currentCommand = (myCommand*)b;
-
-	int current, next, maxCurrent = 2;
-	wchar_t* ws = L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	myString s = createString(0);
-	writeString(&s, ws);
-
-	myGirlParser g = createGirlParser(1, setIntList(1, 2), 1, s);
-	myGirlParser* ptrParser = &g;
-
-	myCommand* p = (myCommand*)(model.currentSession->specifics.element);
-
-	for (int indexCommand = 0; indexCommand < model.currentSession->specifics.used; ++indexCommand) {
-
-
-		myCommand* ptrCmd = &p[indexCommand];
-
-		/** draws a sequence example for this command **/
-		/** if sequence has not been registered into parser, add it now **/
-		ptrParser->reader->pos = 0;
-		clearString(&ptrParser->reader->line);
-		writeString(&ptrParser->reader->line, ptrCmd->name.strContent);
-		writeString(&ptrParser->reader->line, L" ");
-		writeString(&ptrParser->reader->line, ptrCmd->option.strContent);
-		writeString(&ptrParser->reader->line, L" ");
-
-		wprintf(ptrParser->reader->line.strContent);
-
-		myCommand* pr = (myCommand*)ptrCmd->parameters.element;
-		for (int indexParam = 0; indexParam < ptrCmd->parameters.used; ++indexParam) {
-
-			if (indexParam > 0)
-				writeString(&ptrParser->reader->line, L",");
-			writeString(&ptrParser->reader->line, pr[indexParam].name.strContent);
-
-		}
-
-		current = 1;
-		if (ptrCmd->option.used > 0) {
-			addKeywordName(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
-			addKeywordOption(ptrParser, ptrCmd->option, next, &maxCurrent, &next);
-		}
-		else {
-			addKeywordName2(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
-		}
-
-	}
-
-	dumpGirlParser(ptrParser);
-
-	myCommand result = createCommand();
-	myString source = createString(0);
-	writeString(&source, currentParser->reader->line.strContent + currentParser->reader->pos);
-	if (process(&g, &source, &result)) {
-
-		wchar_t s[256];
-		swprintf(s, 255, L"%ls %ls \n", result.name.strContent, result.option.strContent);
-		wprintf(s);
-		writeString(&((myCommand*)currentCommand->parameters.element)[currentCommand->currentParameter].value, s);
-		return true;
-
-	}
-
-	return false;
 }
 
 
@@ -362,7 +286,10 @@ bool createParser(myString input, myCommand* result) {
 
 	int current = 1, next = 0, maxCurrent = 2;
 	myGirlParser g = createGirlParser(1, setIntList(1, 2), 1, s);
+    
 	myGirlParser* ptrParser = &g;
+    myYieldReadPart y;
+    initStringGirlParser(ptrParser, &y, input);
 
 	myCommand* p = (myCommand*)(builtInCommands.element);
 
@@ -381,7 +308,6 @@ bool createParser(myString input, myCommand* result) {
         writeString(&ptrParser->reader->line, ptrCmd->option.strContent);
         writeString(&ptrParser->reader->line, L" ");
 
-		wprintf(ptrParser->reader->line.strContent);
 
 		myCommand* pr = (myCommand*)ptrCmd->parameters.element;
 		for (int indexParam = 0; indexParam < ptrCmd->parameters.used; ++indexParam) {
@@ -392,6 +318,8 @@ bool createParser(myString input, myCommand* result) {
 
 		}
 
+        wprintf(ptrParser->reader->line.strContent);
+
 		current = 1;
 		if (ptrCmd->option.used > 0) {
 			addKeywordName(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
@@ -401,20 +329,54 @@ bool createParser(myString input, myCommand* result) {
 			addKeywordName2(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
 		}
 
-
-
 	}
+    
+    p = (myCommand*)(model.currentSession->specifics.element);
+    
+    for (int indexCommand = 0; indexCommand < model.currentSession->specifics.used; ++indexCommand) {
+        
+        
+        myCommand* ptrCmd = &p[indexCommand];
+        
+        /** draws a sequence example for this command **/
+        /** if sequence has not been registered into parser, add it now **/
+        ptrParser->myObject = ptrCmd;
+        ptrParser->reader->pos = 0;
+        clearString(&ptrParser->reader->line);
+        writeString(&ptrParser->reader->line, ptrCmd->name.strContent);
+        writeString(&ptrParser->reader->line, L" ");
+        writeString(&ptrParser->reader->line, ptrCmd->option.strContent);
+        writeString(&ptrParser->reader->line, L" ");
+        
+        wprintf(ptrParser->reader->line.strContent);
+        
+        myCommand* pr = (myCommand*)ptrCmd->parameters.element;
+        for (int indexParam = 0; indexParam < ptrCmd->parameters.used; ++indexParam) {
+            
+            if (indexParam > 0)
+                writeString(&ptrParser->reader->line, L",");
+            writeString(&ptrParser->reader->line, pr[indexParam].name.strContent);
+            
+        }
+        
+        current = 1;
+        if (ptrCmd->option.used > 0) {
+            addKeywordName(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
+            addKeywordOption(ptrParser, ptrCmd->option, next, &maxCurrent, &next);
+        }
+        else {
+            addKeywordName2(ptrParser, ptrCmd->name, current, &maxCurrent, &next);
+        }
+        
+    }
 
 
-	dumpGirlParser(ptrParser);
-
-	if (process(&g, &input, result)) {
-
-		wprintf(L"%ls %ls \n", result->name.strContent, result->option.strContent);
-		return true;
-
-	}
-
-	return false;
+    if (yieldprocess(ptrParser, result)) {
+        
+        return true;
+        
+    }
+    else
+        return false;
 
 }

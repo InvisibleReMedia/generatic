@@ -456,11 +456,34 @@ myGirlParser createGirlParser(int start, int* ends, unsigned int countEnds, mySt
     p.works = createActionList(0);
 	p.rules = createRuleList(0);
 	p.contexts = createContext(0);
+    p.functionals = createFunctionalList(0);
     
     p.currentState = start;
 	p.significantChars = createString(significantChars.used);
 	writeString(&p.significantChars, significantChars.strContent);
 
+    return p;
+}
+
+/**
+ **   Init a girl parser from a string input
+ **/
+myGirlParser* initStringGirlParser(myGirlParser* p, myYieldReadPart* y, myString s) {
+    
+    p->reader = y;
+    y->file = NULL;
+    y->line = createString(0);
+    writeString(&y->line, s.strContent);
+    y->pos = 0;
+    return p;
+}
+
+/**
+ **   Init a girl parser from a file input
+ **/
+myGirlParser* initFileGirlParser(myGirlParser* p, myYieldReadPart* y) {
+    
+    p->reader = y;
     return p;
 }
 
@@ -529,7 +552,10 @@ myContext* reallocContext(myContext* la, unsigned int newCapacity) {
 }
 
 
-void pushContext(myGirlParser* p) {
+/**
+ **  Push a context and change the state
+ **/
+void pushContext(myGirlParser* p, int chgState) {
 
 	if (p->contexts.used == 0) {
 
@@ -553,6 +579,8 @@ void pushContext(myGirlParser* p) {
 		p->contexts.used += 1;
 
 	}
+    
+    p->currentState = chgState;
 
 }
 
@@ -1249,7 +1277,7 @@ bool searchLookahead(myGirlParser* p, int state, wchar_t c, int* next) {
                 
                 for(int charIndex = 0; charIndex < l->countChars && !found; ++charIndex) {
                     
-                    if (!yieldnRead(p->reader, 1)) return false;
+                    if (!yieldnReadOut(p->reader, 1)) return false;
                     if (l->if_c[charIndex] == c) {
                         found = true;
                         *next = l->state_next;
@@ -1358,154 +1386,105 @@ bool searchFunctional(myGirlParser* p, int state, myString* textfunction, interp
     
 }
 
-bool yieldprocess(myGirlParser* p, void* object) {
+
+/**
+ **   processus logique d'analyse
+ **/
+bool processLogical(myGirlParser* p, void* object) {
     
     int next;
     
-    while(yieldRead(p->reader) && !p->notAvailable) {
-
-        /** functional **/
-        interpret* u = NULL;
-        unsigned int ucount;
-        myString usnf = createString(0);
-        if (searchFunctional(p, p->currentState, &usnf, &u, &ucount)) {
-            
-            interpret* ucurrent = u;
-            for(int ucountF = 0; ucountF < ucount; ++ucountF, ++ucurrent) {
-                
-                createExInterpret(p->reader, *ucurrent);
-                
-            }
-            free(u);
-
-        }
-        freeString(&usnf);
-
+    /** functional **/
+    interpret* u = NULL;
+    unsigned int ucount;
+    myString usnf = createString(0);
+    if (searchFunctional(p, p->currentState, &usnf, &u, &ucount)) {
         
-        /** lookahead **/
-        if (!yieldnRead(p->reader, 1)) break;
-        if (searchLookahead(p, p->currentState, *(p->reader->line.strContent + p->reader->pos), &next)) {
+        interpret* ucurrent = u;
+        for(int ucountF = 0; ucountF < ucount; ++ucountF, ++ucurrent) {
             
-            /** avancer le pointeur (si je mange) **/
-            ++p->reader->pos;
-            /** changement d'état **/
-            p->currentState = next;
-            continue;
+            createExInterpret(p, *ucurrent);
             
         }
+        free(u);
         
-        /** Keywords **/
-        if (searchKeyword(p, p->currentState, &next)) {
-            
-            /** changement d'état **/
-            p->currentState = next;
-            continue;
-            
-        }
+    }
+    freeString(&usnf);
+    
+    
+    /** lookahead **/
+    if (!yieldnReadOut(p->reader, 1)) return false;
+    if (searchLookahead(p, p->currentState, *(p->reader->line.strContent + p->reader->pos), &next)) {
         
-        /** launch actions **/
-        action* a = NULL;
-        unsigned int count;
-        myString snf = createString(0);
-        if (searchAction(p, p->currentState, &snf, &a, &count)) {
-            
-            action* current = a;
-            for(int countF = 0; countF < count; ++countF, ++current) {
-                
-                (*current)(p, object);
-                
-            }
-            free(a);
-        }
-        freeString(&snf);
+        /** avancer le pointeur (si je mange) **/
+        ++p->reader->pos;
+        /** changement d'état **/
+        p->currentState = next;
+        return true;
         
-        /** automatic moves **/
-        if (searchAutomaticMove(p, p->currentState, &next)) {
-            
-            /** changement d'état **/
-            p->currentState = next;
-            continue;
-            
-        }
-        
-        for(int endIndex = 0; endIndex < p->countState; ++endIndex) {
-            
-            if (p->state_end[endIndex] == p->currentState) {
-                
-                p->notAvailable = true;
-                
-            }
-            
-        }
     }
     
-    return !p->notAvailable;
+    /** Keywords **/
+    if (searchKeyword(p, p->currentState, &next)) {
+        
+        /** changement d'état **/
+        p->currentState = next;
+        return true;
+        
+    }
+    
+    /** launch actions **/
+    action* a = NULL;
+    unsigned int count;
+    myString snf = createString(0);
+    if (searchAction(p, p->currentState, &snf, &a, &count)) {
+        
+        action* current = a;
+        for(int countF = 0; countF < count; ++countF, ++current) {
+            
+            (*current)(p, object);
+            
+        }
+        free(a);
+    }
+    freeString(&snf);
+    
+    /** automatic moves **/
+    if (searchAutomaticMove(p, p->currentState, &next)) {
+        
+        /** changement d'état **/
+        p->currentState = next;
+        return true;
+        
+    }
+    
+    for(int endIndex = 0; endIndex < p->countState; ++endIndex) {
+        
+        if (p->state_end[endIndex] == p->currentState) {
+            
+            p->notAvailable = true;
+            
+        }
+        
+    }
+    
+    return true;
+
+}
+
+bool yieldprocess(myGirlParser* p, void* object) {
+    
+    while(yieldRead(p->reader) && !p->notAvailable && processLogical(p, object));
+    
+    return p->notAvailable;
 }
 
 
-bool process(myGirlParser* p, myString* s, void* object) {
+bool process(myGirlParser* p, void* object) {
 
-    int next;
-    
-    while(p->reader->pos < p->reader->line.used && !p->notAvailable) {
-    
-		/** lookahead **/
-        if (searchLookahead(p, p->currentState, p->reader->line.strContent[p->reader->pos], &next)) {
-            
-			/** avancer le pointeur (si je mange) **/
-			++p->reader->pos;
-            /** changement d'état **/
-            p->currentState = next;
-            continue;
-            
-        }
-    
-		/** Keywords **/
-		if (searchKeyword(p, p->currentState, &next)) {
+    while(p->reader->pos < p->reader->line.used && !p->notAvailable && processLogical(p, object));
 
-			/** changement d'état **/
-			p->currentState = next;
-			continue;
-
-		}
-
-		/** launch actions **/
-        action* a = NULL;
-        unsigned int count;
-		myString snf = createString(0);
-        if (searchAction(p, p->currentState, &snf, &a, &count)) {
-            
-            action* current = a;
-            for(int countF = 0; countF < count; ++countF, ++current) {
-                
-                (*current)(p, object);
-                
-            }
-            free(a);
-        }
-		freeString(&snf);
-
-        /** automatic moves **/
-        if (searchAutomaticMove(p, p->currentState, &next)) {
-            
-            /** changement d'état **/
-            p->currentState = next;
-            continue;
-            
-        }
-    
-        for(int endIndex = 0; endIndex < p->countState; ++endIndex) {
-            
-            if (p->state_end[endIndex] == p->currentState) {
-                
-                p->notAvailable = true;
-                
-            }
-            
-        }
-    }
-
-	return !p->notAvailable;
+	return p->notAvailable;
 }
 
 

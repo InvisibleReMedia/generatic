@@ -249,9 +249,11 @@ bool ImportCommands(myCSV* src, myCommandList* dest) {
 /**
  **  Function for parse
  **/
-bool CsvReader(myYieldReadPart* p, void* b) {
+bool CsvReader(myYieldReadPart* p, void* a, void* b) {
     
-    return yieldprocess(p, b);
+    myGirlParser* ptrParser = (myGirlParser*)a;
+    ptrParser->reader = p;
+    return yieldprocess(ptrParser, b);
     
 }
 
@@ -261,7 +263,7 @@ bool funAddChar(myPtrGirlParser a, void* b) {
     myCSV* csv = (myCSV*)b;
     wchar_t input[2];
     input[1] = L'\0';
-    if (!yieldnRead(p->reader, 1)) return false;
+    if (!yieldnReadOut(p->reader, 1)) return false;
     input[0] = p->reader->line.strContent[p->reader->pos];
     writeString(&csv->currentAttribut, input);
     ++p->reader->pos;
@@ -273,7 +275,7 @@ bool funAddEscapeChar(myPtrGirlParser a, void* b) {
 	myGirlParser* p = (myGirlParser*)a;
 	myCSV* csv = (myCSV*)b;
 	wchar_t input[3];
-    if (!yieldnRead(p->reader, 1)) return false;
+    if (!yieldnReadOut(p->reader, 1)) return false;
 	if (p->reader->line.strContent[p->reader->pos] == L'\\' || p->reader->line.strContent[p->reader->pos] == L'"') {
 		input[0] = p->reader->line.strContent[p->reader->pos];
 		input[1] = L'\0';

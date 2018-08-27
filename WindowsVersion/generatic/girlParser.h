@@ -153,6 +153,7 @@ typedef struct {
     myAutomaticMoveList autoMoves;      /** auto move list **/
     myActionList works;                 /** action list **/
 	myRuleList rules;					/** rules **/
+    myFunctionalList functionals;       /** a functional parser **/
 	int* state_end;                     /** states end **/
     unsigned int countState;            /** count states **/
 
@@ -167,7 +168,7 @@ typedef struct {
     int currentState;                   /** current state **/
 	myString significantChars;			/** all significant chars (are characters in keyword) **/
 	myContext contexts;					/** push or pop context **/
-    myFunctionalList functionals;       /** a functional parser **/
+    void* myObject;                     /** object destination **/
     
 } myGirlParser;
 
@@ -176,19 +177,23 @@ extern int* setIntList(int, ...);
 extern wchar_t* setCharList(int, ...);
 extern action* setActionList(int, ...);
 extern myString* setStringList(int, ...);
+extern interpret* setFunctionalList(int, ...);
 extern myGirlParser createGirlParser(int, int[], unsigned int, myString);
-extern bool process(myGirlParser*, myString*, void*);
+extern myGirlParser* initStringGirlParser(myGirlParser*, myYieldReadPart*, myString input);
+extern myGirlParser* initFileGirlParser(myGirlParser*, myYieldReadPart* p);
+extern bool process(myGirlParser*, void*);
 extern bool yieldprocess(myGirlParser*, void*);
 extern void addLookahead(myGirlParser*, int[], unsigned int, wchar_t[], unsigned int, int);
 extern void addKeyword(myGirlParser*, int[], unsigned int, myString[], unsigned int, int);
 extern void addAutomaticMove(myGirlParser*, int[], unsigned int, int);
 extern void addAction(myGirlParser*, int[], unsigned int, myString*, action[], unsigned int);
 extern void addRule(myGirlParser*, int[], unsigned int, wchar_t*);
+extern void addFunctional(myGirlParser*, int[], unsigned int, myString*, interpret[], unsigned int);
 
 extern myRuleList* writeRule(myRuleList*, myRule*);
 extern myRule createRule(int*, unsigned int, wchar_t*);
 extern myKeyword createKeyword(int*, unsigned int, myString*, unsigned int, int);
-extern void pushContext(myGirlParser*);
+extern void pushContext(myGirlParser*, int);
 extern int popContext(myGirlParser*);
 
 extern bool searchLookahead(myGirlParser*, int, wchar_t, int*);

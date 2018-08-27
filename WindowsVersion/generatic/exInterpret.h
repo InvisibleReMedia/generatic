@@ -13,15 +13,16 @@
 #ifndef exInterpret_h
 #define exInterpret_h
 
-typedef bool(*interpret)(myYieldReadPart*, myValueKeyList*);
-extern myValueKeyList createExInterpret(myYieldReadPart*, interpret);
-extern bool expression_cmp(myYieldReadPart*, myString, myValueKeyList*);
-bool expression_size(myYieldReadPart*, int, myValueKeyList*);
-bool expression_ident(myYieldReadPart*, wchar_t, wchar_t, myValueKeyList*);
-bool type(myYieldReadPart*, interpret, myString, myValueKeyList*);
-bool or(myYieldReadPart*, interpret, interpret, myValueKeyList*);
-bool loop(myYieldReadPart*, myString, interpret, myString, myString, myValueKeyList*);
-bool surround(myYieldReadPart*, myString, interpret, myString, myValueKeyList*);
+typedef bool(*interpret)(void*, myValueKeyList*);
+extern myValueKeyList createExInterpret(void*, interpret);
+extern bool expression_cmp(void*, myString, myValueKeyList*);
+bool expression_size(void*, int, myValueKeyList*);
+bool expression_ident(void*, wchar_t, wchar_t, myValueKeyList*);
+bool type(void*, interpret, myString, myValueKeyList*);
+bool or(void*, interpret, interpret, myValueKeyList*);
+bool loop(void*, myString, interpret, myString, myString, myValueKeyList*);
+bool surround(void*, myString, interpret, myString, myValueKeyList*);
+bool contextChange(void*, int newContext);
 
 
 #endif /* exInterpret_h */

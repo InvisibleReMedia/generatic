@@ -26,18 +26,20 @@
 
 
 
-bool readExParser(myString* source, void* p, void* dest) {
+bool readExParser(myYieldReadPart* y, void* p, void* dest) {
 
-    process(p, source, dest);
-    
-    return false;
+    myGirlParser* ptrParser = (myGirlParser*)p;
+    ptrParser->reader = y;
+
+    return !yieldprocess(p, dest);
+
 }
 
 
 bool funMoveCursor(myPtrGirlParser a, void* b) {
 
 	myGirlParser* ptrParser = (myGirlParser*)a;
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    if (!yieldnReadOut(ptrParser->reader, 1)) return false;
     ++ptrParser->reader->pos;
     return true;
 }
@@ -48,7 +50,7 @@ bool funAddSignificantChars(myPtrGirlParser a, void* b) {
 	myGirlParser* ptrDest = (myGirlParser*)b;
 
 	wchar_t copy[2];
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    if (!yieldnReadOut(ptrParser->reader, 1)) return false;
     copy[0] = ptrParser->reader->line.strContent[ptrParser->reader->pos];
     ++ptrParser->reader->pos;
 	copy[1] = L'\0';
@@ -63,7 +65,7 @@ bool funAddStartState(myPtrGirlParser a, void* b) {
 	myGirlParser* ptrParser = (myGirlParser*)a;
 	myGirlParser* ptrDest = (myGirlParser*)b;
 
-    if (!yieldnRead(ptrParser->reader, 1)) return false;
+    if (!yieldnReadOut(ptrParser->reader, 1)) return false;
 	wchar_t c = ptrParser->reader->line.strContent[ptrParser->reader->pos];
 	if (c >= L'0' && c <= L'9') {
         int i = (int)(c - L'0');
@@ -120,7 +122,7 @@ myGirlParser loadExParserFromFile(char* fileName) {
 	addAction(&reader, setIntList(1, 8), 1, setStringList(1, L"funAddStartState"), setActionList(1, funAddStartState), 1);
 
 	/** read with a non dos format for new lines **/
-	readFromFile(fileName, readExParser, &reader, &newDest);
+	yieldReadFromFile(fileName, readExParser, &reader, &newDest);
     
     return newDest;
 }
