@@ -14,6 +14,7 @@
 #ifndef cmd_h
 #define cmd_h
 
-extern bool searchCommand(myCommand*, myCommandList*);
+extern bool searchCommandName(myCommand*, myCommandList*);
+extern bool searchCommandOption(myCommand*, myCommandList*, myCommandList*);
 
 #endif /* cmd_h */

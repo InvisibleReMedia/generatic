@@ -572,9 +572,10 @@ bool yieldnRead(myYieldReadPart* y, unsigned int n, bool keepInMemory) {
     } else if (y->pos < y->line.used) {
         return true;
     } else {
-        bool end = feof(y->file);
-        if (y->file == NULL || end)
+        bool end = y->file == NULL || feof(y->file);
+        if (end) {
             return false;
+        }
         else {
 
             wchar_t input[2];

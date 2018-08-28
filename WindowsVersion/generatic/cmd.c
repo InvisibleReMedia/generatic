@@ -18,20 +18,22 @@
 #include <assert.h>
 #include "library-strings.h"
 #include "dataModel.h"
+#include "csv-reader.h"
+#include "installing.h"
 #include "parse-cmd.h"
 #include "cmd.h"
 
 
 /**
- **  Search command from builtin commands
+ **  Search command from available commands
  **
  **/
-bool searchCommand(myCommand* src, myCommandList* builtin) {
+bool searchCommandName(myCommand* src, myCommandList* results) {
     
     /** recherche de toutes les commandes du même nom **/
     myCommandList selected = createCommandList(0);
-    myCommand* c = (myCommand*)builtin->element;
-    for(int index = 0; index < builtin->used; ++index) {
+    myCommand* c = (myCommand*)builtInCommands.element;
+    for(int index = 0; index < builtInCommands.used; ++index) {
         
         if (wcscmp(src->name.strContent, c[index].name.strContent) == 0) {
             
@@ -40,90 +42,46 @@ bool searchCommand(myCommand* src, myCommandList* builtin) {
         }
         
     }
-    
-    /** recherche de toutes les options du même nom **/
-    if (selected.used > 0) {
+    c = (myCommand*)model.currentSession->specifics.element;
+    for(int index = 0; index < model.currentSession->specifics.used; ++index) {
         
-        myCommandList optional = createCommandList(selected.used);
-        myCommand* c = (myCommand*)selected.element;
-        for(int index = 0; index < selected.used; ++index) {
+        if (wcscmp(src->name.strContent, c[index].name.strContent) == 0) {
             
-            if (wcscmp(src->option.strContent, c[index].option.strContent) == 0) {
-                
-                writeCommand(&optional, &c[index]);
-                
-            }
+            writeCommand(&selected, &c[index]);
             
         }
         
-        /** compter le nombre de paramètres et sélectionner celui qui en
-         ** a le même nombre **/
-        if (optional.used > 0) {
-            
-            myCommandList uniqueCommand = createCommandList(selected.used);
-            myCommand* c = (myCommand*)optional.element;
-            for(int index = 0; index < optional.used; ++index) {
-                
-                if (c[index].parameters.used == src->parameters.used) {
-                    
-                    writeCommand(&uniqueCommand, &c[index]);
-                    
-                }
-                
-            }
-        
-            /** s'il ne reste qu'une seule commande possible **/
-            if (uniqueCommand.used == 1) {
-                
-                myCommand* d = (myCommand*)uniqueCommand.element;
-                myCommand* opar = (myCommand*)d->parameters.element;
-                myCommand* srcpar = (myCommand*)src->parameters.element;
-                /** iterer les paramètres, identifier les noms des paramètres */
-                for(int index = 0; index < d->parameters.used; ++index) {
-                   
-                    
-                    if (index < src->parameters.used) {
-                        
-                        /** recopie le name dans la commande **/
-                        writeString(&srcpar[index].name, opar[index].name.strContent);
-
-                    }
-                }
-                
-                src->execCommand = d->execCommand;
-                
-                return true;
-                
-            }
-            else if (uniqueCommand.used > 1)
-            {
-                
-                fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls avec certitude\n", src->name.strContent, src->option.strContent);
-                return false;
-                
-            }
-            else
-            {
-                fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls avec %d paramètres\n", src->name.strContent, src->option.strContent, src->parameters.used);
-                return false;
-
-            }
-            
-        }
-        else
-        {
-            fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls %ls\n", src->name.strContent, src->option.strContent);
-            return false;
-            
-        }
-
     }
+
+    *results = selected;
+    if (selected.used > 0)
+        return true;
     else
-    {
-
-        fwprintf(stdout, L"Je n'ai pas trouvé la commande %ls\n", src->name.strContent);
         return false;
-
-    }
     
 }
+
+
+bool searchCommandOption(myCommand* src, myCommandList* selected, myCommandList* results) {
+    
+    /** recherche de toutes les options du même nom **/
+    myCommandList optional = createCommandList(0);
+    myCommand* c = (myCommand*)selected->element;
+    for(int index = 0; index < selected->used; ++index) {
+        
+        if (wcscmp(src->option.strContent, c[index].option.strContent) == 0) {
+            
+            writeCommand(&optional, &c[index]);
+            
+        }
+        
+    }
+    
+    *results = optional;
+    if (optional.used > 0)
+        return true;
+    else
+        return false;
+    
+}
+

@@ -64,13 +64,7 @@ void entry() {
                 myCommand o = createCommand();
 				if (createParser(line, &o)) {
                     
-                    if (searchCommand(&o, &builtInCommands)) {
-                        
-                        wprintf(L"    OK\n");
-                        
-                        (*o.execCommand)(&model, &o);
-
-                    }
+                    
                 }
                 
             }

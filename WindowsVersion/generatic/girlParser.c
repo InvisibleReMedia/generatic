@@ -474,6 +474,12 @@ myGirlParser* initStringGirlParser(myGirlParser* p, myYieldReadPart* y, myString
     y->file = NULL;
     y->line = createString(0);
     writeString(&y->line, s.strContent);
+
+    /** ajoute une indication de fin de fichier **/
+    wchar_t input[2];
+    input[1] = L'\0';
+    input[0] = L'\xFE';
+    writeString(&y->line, input);
     y->pos = 0;
     return p;
 }
@@ -1246,7 +1252,7 @@ bool searchKeyword(myGirlParser* p, int state, int* next) {
 	/** keyword must not be followed by one another significant chars **/
 	if (found) {
 
-        if (!yieldnReadInMemory(p->reader, 1)) return false;
+        if (!yieldnReadInMemory(p->reader, 1)) return found;
 		while (found && wcschr(p->significantChars.strContent, *(p->reader->line.strContent + p->reader->pos))) {
             ++p->reader->pos;
 			found = false;

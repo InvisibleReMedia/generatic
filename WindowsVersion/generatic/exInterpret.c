@@ -105,6 +105,18 @@ bool or(void* a, interpret left, interpret right, myValueKeyList* l) {
 }
 
 /**
+ **   Or function : do one of them
+ **
+ **/
+bool and(void* a, interpret left, interpret right, myValueKeyList* l) {
+    
+    myGirlParser* p = (myGirlParser*)a;
+    bool res = left(p, l);
+    res &= right(p, l);
+    return res;
+}
+
+/**
  **   selection type
  **/
 bool type(void* a, interpret f, myString typeName, myValueKeyList* l) {
@@ -158,6 +170,77 @@ bool expression_size(void* a, int count, myValueKeyList* l) {
     
     return true;
 
+}
+
+/**
+ **    search * but not in chars
+ **/
+bool expression_notin(void* a, wchar_t* chars, unsigned int count, myValueKeyList* l) {
+    
+    myGirlParser* p = (myGirlParser*)a;
+    myYieldReadPart* y = p->reader;
+    bool finished = false;
+    while(!finished) {
+        
+        wchar_t c[2];
+        
+        if (!yieldnReadOut(y, 1)) return true;
+        c[0] = y->line.strContent[y->pos];
+        c[1] = L'\0';
+        for(int index = 0; index < count; ++index) {
+            
+            if (chars[index] == c[0]) {
+                finished = true;
+                break;
+            }
+            
+        }
+        if (!finished) {
+            writeString(&l->element[l->used - 1].value, c);
+            ++y->pos;
+        }
+
+    }
+    
+    return finished;
+
+}
+
+/**
+ **    search in chars
+ **/
+bool expression_in(void* a, wchar_t* chars, unsigned int count, myValueKeyList* l) {
+    
+    myGirlParser* p = (myGirlParser*)a;
+    myYieldReadPart* y = p->reader;
+    bool finished = false;
+    while(!finished) {
+        
+        wchar_t c[2];
+        
+        if (!yieldnReadOut(y, 1)) return true;
+        c[0] = y->line.strContent[y->pos];
+        c[1] = L'\0';
+        bool found = false;
+        for(int index = 0; index < count; ++index) {
+            
+            if (chars[index] == c[0]) {
+                found = true;
+                break;
+            }
+            
+        }
+        if (found) {
+            writeString(&l->element[l->used - 1].value, c);
+            ++y->pos;
+        } else {
+            finished = true;
+        }
+        
+    }
+    
+    return finished;
+    
 }
 
 /**
