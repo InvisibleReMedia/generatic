@@ -19,7 +19,7 @@
 #include "library-strings.h"
 #include "dataModel.h"
 #include <stdarg.h>
-#include "Unix/fileSystem.h"
+#include "PowerShell/fileSystem.h"
 #include "exInterpret.h"
 #include "girlParser.h"
 
@@ -37,7 +37,7 @@ bool contextChange(void* a, int c) {
 /**
  **  Surround a sequence by left and right
  **/
-bool surround(void* a, myString left, interpret f, myString right, myValueKeyList* l) {
+bool surround(void* a, myString left, interpret f, myString right, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -62,7 +62,7 @@ bool surround(void* a, myString left, interpret f, myString right, myValueKeyLis
 /**
  **  Repeat a sequence; start and end
  **/
-bool loop(void* a, myString left, interpret f, myString interval, myString right, myValueKeyList* l) {
+bool loop(void* a, myString interval, interpret f, interpret validate, myString left, myString right, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -73,13 +73,14 @@ bool loop(void* a, myString left, interpret f, myString interval, myString right
     if (!yieldnReadOut(y, left.used)) return false;
 	if (wcsncmp(y->line.strContent + y->pos, left.strContent, left.used) == 0) {
         y->pos += left.used;
-        c = true;
+        c = validate(a, l);
 		do {
             if (!yieldnReadOut(y, interval.used)) return false;
 			if (index > 0 && wcsncmp(y->line.strContent + y->pos, interval.strContent, interval.used) == 0) {
+				c &= validate(a, l);
                 y->pos += interval.used;
 			}
-			c &= f(y, l);
+			c &= f(a, l);
             if (!yieldnReadOut(y, right.used)) return false;
 			if (wcsncmp(y->line.strContent + y->pos, right.strContent, right.used) == 0) {
                 y->pos += right.used;
@@ -95,20 +96,20 @@ bool loop(void* a, myString left, interpret f, myString interval, myString right
 
 
 /**
- **   Or function : do one of them
+ **   do one function : do one of them
  **
  **/
-bool or(void* a, interpret left, interpret right, myValueKeyList* l) {
+bool doOne(void* a, interpret left, interpret right, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
 	return left(p, l) || right(p, l);
 }
 
 /**
- **   Or function : do one of them
+ **   do all function : do all of them
  **
  **/
-bool and(void* a, interpret left, interpret right, myValueKeyList* l) {
+bool doAll(void* a, interpret left, interpret right, myExInterpret* l) {
     
     myGirlParser* p = (myGirlParser*)a;
     bool res = left(p, l);
@@ -119,17 +120,18 @@ bool and(void* a, interpret left, interpret right, myValueKeyList* l) {
 /**
  **   selection type
  **/
-bool type(void* a, interpret f, myString typeName, myValueKeyList* l) {
+bool type(void* a, interpret f, myString typeName, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
-	writeValueKey(l, typeName.strContent, L"");
+	activateRecordList(l);
+	writeValueKey(l->current, typeName.strContent, L"");
 	return f(p, l);
 }
 
 /**
  **  expression [from-to]*
  **/
-bool expression_ident(void* a, wchar_t from, wchar_t to, myValueKeyList* l) {
+bool expression_ident(void* a, wchar_t from, wchar_t to, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -141,7 +143,7 @@ bool expression_ident(void* a, wchar_t from, wchar_t to, myValueKeyList* l) {
 
 		c[0] = y->line.strContent[y->pos];
 		c[1] = L'\0';
-		writeString(&l->element[l->used - 1].value, c);
+		insertIntoCurrentList(c, l);
         ++y->pos;
         if (!yieldnReadOut(y, 1)) return false;
 	}
@@ -152,7 +154,7 @@ bool expression_ident(void* a, wchar_t from, wchar_t to, myValueKeyList* l) {
 /**
  **    count any number of elements
  **/
-bool expression_size(void* a, int count, myValueKeyList* l) {
+bool expression_size(void* a, int count, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -163,8 +165,8 @@ bool expression_size(void* a, int count, myValueKeyList* l) {
         if (!yieldnReadOut(y, 1)) return false;
 		c[0] = y->line.strContent[y->pos];
 		c[1] = L'\0';
-		writeString(&l->element[l->used - 1].value, c);
-        ++y->pos;
+		insertIntoCurrentList(c, l);
+		++y->pos;
 
 	}
     
@@ -173,9 +175,43 @@ bool expression_size(void* a, int count, myValueKeyList* l) {
 }
 
 /**
+**    search * but not in chars
+**/
+bool expression_notin(void* a, wchar_t* chars, unsigned int count, myExInterpret* l) {
+
+	myGirlParser* p = (myGirlParser*)a;
+	myYieldReadPart* y = p->reader;
+
+
+	wchar_t c[2];
+
+	bool found = false;
+	if (!yieldnReadOut(y, 1)) return true;
+	c[0] = y->line.strContent[y->pos];
+	c[1] = L'\0';
+	for (int index = 0; index < count; ++index) {
+
+		if (chars[index] == c[0]) {
+			found = true;
+			break;
+		}
+
+	}
+	if (!found) {
+		insertIntoCurrentList(c, l);
+		++y->pos;
+	}
+
+	return found;
+
+}
+
+
+
+/**
  **    search * but not in chars
  **/
-bool expression_notin(void* a, wchar_t* chars, unsigned int count, myValueKeyList* l) {
+bool expression_loop_notin(void* a, wchar_t* chars, unsigned int count, myExInterpret* l) {
     
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -196,8 +232,8 @@ bool expression_notin(void* a, wchar_t* chars, unsigned int count, myValueKeyLis
             
         }
         if (!finished) {
-            writeString(&l->element[l->used - 1].value, c);
-            ++y->pos;
+			insertIntoCurrentList(c, l);
+			++y->pos;
         }
 
     }
@@ -207,9 +243,40 @@ bool expression_notin(void* a, wchar_t* chars, unsigned int count, myValueKeyLis
 }
 
 /**
+**    search in chars
+**/
+bool expression_in(void* a, wchar_t* chars, unsigned int count, myExInterpret* l) {
+
+	myGirlParser* p = (myGirlParser*)a;
+	myYieldReadPart* y = p->reader;
+
+	wchar_t c[2];
+
+	if (!yieldnReadOut(y, 1)) return true;
+	c[0] = y->line.strContent[y->pos];
+	c[1] = L'\0';
+	bool found = false;
+	for (int index = 0; index < count; ++index) {
+
+		if (chars[index] == c[0]) {
+			found = true;
+			break;
+		}
+
+	}
+	if (found) {
+		insertIntoCurrentList(c, l);
+		++y->pos;
+	}
+
+	return found;
+
+}
+
+/**
  **    search in chars
  **/
-bool expression_in(void* a, wchar_t* chars, unsigned int count, myValueKeyList* l) {
+bool expression_loop_in(void* a, wchar_t* chars, unsigned int count, myExInterpret* l) {
     
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -231,8 +298,8 @@ bool expression_in(void* a, wchar_t* chars, unsigned int count, myValueKeyList* 
             
         }
         if (found) {
-            writeString(&l->element[l->used - 1].value, c);
-            ++y->pos;
+			insertIntoCurrentList(c, l);
+			++y->pos;
         } else {
             finished = true;
         }
@@ -246,7 +313,7 @@ bool expression_in(void* a, wchar_t* chars, unsigned int count, myValueKeyList* 
 /**
  **    Compare an expression with a test string
  **/
-bool expression_cmp(void* a, myString test, myValueKeyList* l) {
+bool expression_cmp(void* a, myString test, myExInterpret* l) {
 
     myGirlParser* p = (myGirlParser*)a;
     myYieldReadPart* y = p->reader;
@@ -257,16 +324,51 @@ bool expression_cmp(void* a, myString test, myValueKeyList* l) {
 
 
 /**
+ **  insert into list
+ **/
+bool insertIntoCurrentList(wchar_t* s, myExInterpret* l) {
+
+	if (l->current->used > 0) {
+		writeString(&l->current->element[l->current->used - 1].value, s);
+	}
+	else {
+		writeValueKey(l->current, L"x", s);
+	}
+	return true;
+
+}
+
+/**
+ **  active la trash list
+ **/
+bool activateTrashList(myExInterpret* l) {
+
+	l->current = &l->trash;
+	return true;
+}
+
+/**
+**  active la trash list
+**/
+bool activateRecordList(myExInterpret* l) {
+
+	l->current = &l->recorder;
+	return true;
+}
+/**
  **  create an exInterpreter
  **  it is a sequence of nested functions calls that returns a list of name/value elements found
  **  to select a name for any value, use type() function
  **/
-myValueKeyList createExInterpret(void* a, interpret f) {
+myExInterpret createExInterpret(void* a, interpret f) {
 
-	myValueKeyList list = createValueKeyList(0);
+	myExInterpret ex;
+	ex.recorder = createValueKeyList(0);
+	ex.trash = createValueKeyList(0);
+	ex.current = &ex.trash;
 
-	f(a, &list);
-	return list;
+	f(a, &ex);
+	return ex;
 
 }
 

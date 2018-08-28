@@ -23,7 +23,7 @@
 #include "cmd.h"
 #include "parse-cmd.h"
 #include <stdarg.h>
-#include "Unix/fileSystem.h"
+#include "PowerShell/fileSystem.h"
 #include "exInterpret.h"
 #include "girlParser.h"
 
@@ -138,31 +138,31 @@ bool parseCommand(myString s, myCommand* result) {
     return state > 0;
 }
 
-bool testName(void *a, myValueKeyList* l) {
+bool testName(void *a, myExInterpret* l) {
     
-    return expression_notin(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
-    
-}
-
-bool testParam(void *a, myValueKeyList* l) {
-    
-    return expression_notin(a, setCharList(1, L','), 1, l);
+    return expression_loop_notin(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
     
 }
 
-bool testSpace(void *a, myValueKeyList* l) {
+bool testParam(void *a, myExInterpret* l) {
     
-    return expression_in(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
-    
-}
-
-bool testNameAndSpace(void* a, myValueKeyList* l) {
-    
-    return and(a, testName, testSpace, l);
+    return expression_notin(a, setCharList(2, L',', L'\n'), 2, l);
     
 }
 
-bool setParam(void *a, myValueKeyList* l) {
+bool testSpace(void *a, myExInterpret* l) {
+    
+    return expression_loop_in(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
+    
+}
+
+bool testNameAndSpace(void* a, myExInterpret* l) {
+    
+	return testName(a, l) && activateTrashList(l) && testSpace(a, l);
+    
+}
+
+bool setParam(void *a, myExInterpret* l) {
     
     myString s = createString(0);
     writeString(&s, L"param");
@@ -172,98 +172,142 @@ bool setParam(void *a, myValueKeyList* l) {
 
 }
 
-bool searchOption(void *a, myValueKeyList* l) {
+bool searchOption(void *a, myExInterpret* l) {
     
     myString s = createString(0);
     writeString(&s, L"option");
-    bool res = type(a, testName, s, l);
+    bool res = type(a, testNameAndSpace, s, l);
     freeString(&s);
     return res;
 }
 
-bool searchName(void*, myValueKeyList*);
-bool searchOneParam(void* a, myValueKeyList* l) {
-    
-    return setParam(a, l) && expression_in(a, setCharList(1, L','), 1, l) && searchName(a, l);
-    
+bool searchName(bool, void*, myExInterpret*);
+
+bool searchOneParam(void* a, myExInterpret* l) {
+
+	return searchName(false, a, l);
+
 }
 
-bool searchParams(void *a, myValueKeyList* l) {
-    
-    myString s = createString(0);
-    writeString(&s, L"param");
-    myString interval = createString(0);
-    writeString(&interval, L",");
-    myString start = createString(0);
-    myString end = createString(0);
-    writeString(&end, L"\n");
-    bool res = loop(a, interval, searchOneParam, start, end, l);
-    return res;
+bool searchParam(void *a, myExInterpret* l) {
+
+	myString s = createString(0);
+	writeString(&s, L"param");
+	return type(a, searchOneParam, s, l);
+}
+
+bool searchLoopParams(void *a, myExInterpret* l) {
+
+	myString interval = createString(0);
+	writeString(&interval, L",");
+	myString start = createString(0);
+	myString end = createString(0);
+	writeString(&end, L"\n");
+	bool res = loop(a, interval, testParam, searchParam, start, end, l);
+	return res;
+
 }
 
 
-bool searchName(void *a, myValueKeyList* l) {
+bool searchName(bool printed, void *a, myExInterpret* l) {
     
     bool res = false;
     bool one = false;
     myCommand lastSelected = createCommand();
-    myString s = createString(0);
-    writeString(&s, L"name");
-    if (type(a, testName, s, l)) {
-        expression_in(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
+
+	if (l->recorder.used > 0) {
+
         /** recherche du name dans les commandes **/
         myCommand c = createCommand();
         myCommandList found;
-        writeString(&c.name, l->element[l->used - 1].value.strContent);
+        writeString(&c.name, l->recorder.element[l->recorder.used - 1].value.strContent);
 
         if (searchCommandName(&c, &found)) {
             
             if (searchOption(a, l)) {
                 
-                expression_in(a, setCharList(3, L' ', L'\t', L'\n'), 3, l);
                 /** recherche de option dans les commandes **/
-                writeString(&c.option, l->element[l->used - 1].value.strContent);
+                writeString(&c.option, l->recorder.element[l->recorder.used - 1].value.strContent);
                 myCommandList option;
                 if (searchCommandOption(&c, &found, &option)) {
                     
-                    int startParamIndex = l->used;
-                    if (searchParams(a, l)) {
-                        
-                        res = true;
-                    }
-                    int endParamIndex = l->used;
-                    myCommand* op = (myCommand*)option.element;
-                    res = false;
-                    one = false;
-                    for(int index = 0; index < option.used; ++index) {
-                        
-                        if (op[index].parameters.used == endParamIndex - startParamIndex) {
-                            
-                            if (!one) {
-                                
-                                one = true;
-                                lastSelected = op[index];
-                                res = true;
+					if (option.used == 1) {
 
-                            } else {
-                                
-                                res = false;
-                                
-                            }
-                            
-                        }
-                    }
+						int startParamIndex = l->recorder.used;
+						res = searchLoopParams(a, l);
+						int endParamIndex = l->recorder.used;
+
+						myCommand* op = (myCommand*)option.element;
+						res = false;
+						one = false;
+						for (int index = 0; index < option.used; ++index) {
+
+							if (op[index].parameters.used == endParamIndex - startParamIndex) {
+
+								if (!one) {
+
+									one = true;
+									lastSelected = op[index];
+									for (int countParam = 0; countParam < op[index].parameters.used; ++countParam) {
+										writeString(&((myCommand*)lastSelected.parameters.element)[countParam].value, l->recorder.element[startParamIndex + countParam].value.strContent);
+									}
+									res = true;
+
+								}
+								else {
+
+									res = false;
+
+								}
+
+							}
+						}
+
+
+					}
+					else {
+
+						if (printed)
+							wprintf(L"Je n'ai pas trouvé la commande %ls %ls avec certitude\n", c.name.strContent, c.option.strContent);
+						res = false;
+					}
+
                 }
+				else {
+
+					if (printed)
+						wprintf(L"Je n'ai pas trouvé la commande %ls avec l'option %ls\n", c.name.strContent, c.option.strContent);
+					res = false;
+				}
 
             }
         }
+		else {
+
+			if (printed)
+				wprintf(L"Je n'ai pas trouvé la commande %ls\n", c.name.strContent);
+			res = false;
+		}
 
     }
-    freeString(&s);
     
     return res && one;
 }
 
+
+bool startSearchName(void *a, myExInterpret* l) {
+
+	bool res;
+	myString s = createString(0);
+	writeString(&s, L"name");
+	if (type(a, testNameAndSpace, s, l)) {
+		res = searchName(true, a, l);
+	}
+	else
+		res = false;
+	freeString(&s);
+	return res;
+}
 
 bool createParser(myString input, myCommand* result) {
 
@@ -271,7 +315,7 @@ bool createParser(myString input, myCommand* result) {
     myGirlParser g = createGirlParser(1, setIntList(0), 0, s);
     myYieldReadPart y;
     initStringGirlParser(&g, &y, input);
-    createExInterpret(&g, searchName);
+    createExInterpret(&g, startSearchName);
     freeString(&s);
     return true;
 }

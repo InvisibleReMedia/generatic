@@ -6,3 +6,24 @@ surround([/
 			/,)
 		/])
 
+
+parse-cmd retourne une liste d'éléments formatés : x,x,...x\n
+et chaque x peut être 
+	mot1
+ou	mot1 mot2 paramètre
+
+loop(
+		"",
+		X,
+		",","\n"
+	)
+
+X:
+	loop(
+		" ",
+		Y,
+		"",","
+	)
+
+Y: type(*, "value")
+

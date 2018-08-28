@@ -16,14 +16,27 @@
 extern void createDirectory(wchar_t*, wchar_t*);
 extern void createFile(wchar_t*, wchar_t*);
 extern void deleteFile(wchar_t*, wchar_t*);
-extern void deleteDirectory(wchar_t*,wchar_t*);
-extern void printFile(wchar_t*,wchar_t*);
+extern void deleteDirectory(wchar_t*, wchar_t*);
+extern void printFile(wchar_t*, wchar_t*);
 extern void eraseFile(char*);
-typedef bool (*writePart)(myString*);
-typedef bool (*readPart)(myString*, void*, void*);
+typedef bool(*writePart)(myString*);
+typedef bool(*readPart)(myString*, void*, void*);
+
+typedef struct {
+
+	FILE*          file;
+	myString       line;
+	unsigned int   pos;
+
+} myYieldReadPart;
+typedef bool(*yieldReadPart)(myYieldReadPart*, void*, void*);
+
 extern void writeFile(char*, writePart);
 extern void readFromFile(char*, readPart, void*, void*);
-char* combine(char*, char*);
-char* combine2(char*, char*, char*);
+extern void yieldReadFromFile(char*, yieldReadPart, void*, void*);
+extern bool yieldnReadInMemory(myYieldReadPart*, unsigned int);
+extern bool yieldnRead(myYieldReadPart*, unsigned int, bool);
+extern bool yieldnReadOut(myYieldReadPart*, unsigned int);
+extern bool yieldRead(myYieldReadPart*);
 
 #endif /* fileSystem_h */
